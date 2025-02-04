@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AR Hiro Marker - PDF Viewer</title>
+    
+    <!-- A-Frame and AR.js -->
+    <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
+    <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.min.js"></script>
+    
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body>
+    <a-scene embedded arjs>
+        <!-- Hiro Marker -->
+        <a-marker preset="hiro">
+            <!-- Display Image from PDF -->
+            <a-image src="https://sburambekova.github.io/AR_first_exp/assets/datasheet.png" position="0 0 0" rotation="-90 0 0" width="2" height="2.5"></a-image>
+        </a-marker>
+        
+        <a-entity camera></a-entity>
+    </a-scene>
+</body>
+</html>
