@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AR Color Perception Experiment</title>
+    
+    <!-- A-Frame & AR.js -->
+    <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
+    <script src="https://rawgit.com/jeromeetienne/ar.js/master/aframe/build/aframe-ar.min.js"></script>
+
+    <style>
+        body { margin: 0; overflow: hidden; }
+    </style>
+</head>
+<body>
+    <a-scene embedded arjs>
+        
+        <!-- HIRO Marker -->
+        <a-marker preset="hiro">
+            
+            <!-- White background plane -->
+            <a-plane position="0 0 0" width="2" height="2" color="white"></a-plane>
+
+            <!-- Color Grid -->
+            <a-entity id="color-grid"></a-entity>
+        
+        </a-marker>
+
+        <a-entity camera></a-entity>
+
+    </a-scene>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const colorGrid = document.getElementById("color-grid");
+            
+            // List of colors
+            const colors = [
+                { name: "Red", hex: "#FF0000" },
+                { name: "Green", hex: "#00FF00" },
+                { name: "Blue", hex: "#0000FF" },
+                { name: "Yellow", hex: "#FFFF00" },
+                { name: "Magenta", hex: "#FF00FF" },
+                { name: "Cyan", hex: "#00FFFF" },
+                { name: "Orange", hex: "#FFA500" },
+                { name: "Purple", hex: "#800080" },
+                { name: "Pink", hex: "#FFC0CB" },
+                { name: "Brown", hex: "#8B4513" }
+            ];
+
+            // Generate color squares in a grid
+            let rows = 2, cols = 5, spacing = 0.4;
+            
+            for (let i = 0; i < colors.length; i++) {
+                let x = (i % cols - (cols / 2) + 0.5) * spacing;
+                let y = (rows / 2 - Math.floor(i / cols) - 0.5) * spacing;
+                
+                // Color square
+                let square = document.createElement("a-plane");
+                square.setAttribute("position", `${x} ${y} 0.1`);
+                square.setAttribute("width", "0.3");
+                square.setAttribute("height", "0.3");
+                square.setAttribute("color", colors[i].hex);
+                square.setAttribute("material", "shader: flat");
+                
+                // Color Label
+                let label = document.createElement("a-text");
+                label.setAttribute("value", colors[i].name);
+                label.setAttribute("position", `${x} ${y - 0.2} 0.2`);
+                label.setAttribute("align", "center");
+                label.setAttribute("color", "black");
+                label.setAttribute("scale", "0.5 0.5 0.5");
+                
+                colorGrid.appendChild(square);
+                colorGrid.appendChild(label);
+            }
+        });
+    </script>
+</body>
+</html>
