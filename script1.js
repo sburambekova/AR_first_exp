@@ -1,7 +1,7 @@
 document.addEventListener("DOMContentLoaded", function() {
     const container = document.getElementById("numbers-container");
 
-    // Create 100 numbers in a grid
+    //100 numbers in a grid
     const rows = 20;
     const cols = 10;
     const spacing = 0.2;

@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AR Hiro Marker Experiment</title>
 
-    <!-- A-Frame & AR.js -->
+    
     <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
     <!-- <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar-nft.js"></script> -->
     <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js/aframe/build/aframe-ar.min.js"></script>
@@ -21,15 +21,15 @@
 
     <a-scene embedded arjs="sourceType: webcam;">
 
-        <!-- Camera -->
+        
         <a-entity camera></a-entity>
 
-        <!-- Hiro Marker -->
+
         <a-marker preset="hiro">
-            <!-- White background -->
+         
             <a-plane position="0 0 0" rotation="0 0 0" width="3" height="4" color="white"></a-plane>
 
-            <!-- Number Container -->
+            
             <a-entity id="numbers-container"></a-entity>
         </a-marker>
     </a-scene>
