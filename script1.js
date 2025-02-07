@@ -2,8 +2,8 @@ document.addEventListener("DOMContentLoaded", function() {
     const container = document.getElementById("numbers-container");
 
     //100 numbers in a grid
-    const rows = 20;
-    const cols = 10;
+    const rows = 100;
+    const cols = 100;
     const spacing = 0.2;
 
     for (let i = 0; i < rows; i++) {

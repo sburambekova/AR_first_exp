@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AR Color Perception Experiment</title>
     
-    <!-- A-Frame & AR.js -->
+ 
     <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js/aframe/build/aframe-ar.min.js"></script>
 
@@ -16,13 +16,12 @@
 <body>
     <a-scene embedded arjs>
         
-        <!-- HIRO Marker -->
+      
         <a-marker preset="hiro">
             
-            <!-- White background plane -->
+          
             <a-plane position="0 0 0" width="2" height="2" color="white" rotation = "-90 0 0"></a-plane>
 
-            <!-- Color Grid -->
             <a-entity id="color-grid" position="0 0 0.1" rotation="-90 0 0"></a-entity>
         
         </a-marker>
@@ -49,14 +48,14 @@
                 { name: "Brown", hex: "#8B4513" }
             ];
 
-            // Generate color squares in a grid
+          
             let rows = 2, cols = 5, spacing = 0.4;
             
             for (let i = 0; i < colors.length; i++) {
                 let x = (i % cols - (cols / 2) + 0.5) * spacing;
                 let y = (rows / 2 - Math.floor(i / cols) - 0.5) * spacing;
                 
-                // Color square
+             
                 let square = document.createElement("a-plane");
                 square.setAttribute("position", `${x} ${y} 0.1`);
                 square.setAttribute("width", "0.3");
@@ -64,7 +63,7 @@
                 square.setAttribute("color", colors[i].hex);
                 square.setAttribute("material", "shader: flat");
                 
-                // Color Label
+              
                 let label = document.createElement("a-text");
                 label.setAttribute("value", colors[i].name);
                 label.setAttribute("position", `${x} ${y - 0.2} 0.2`);
