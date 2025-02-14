@@ -4,7 +4,7 @@ document.addEventListener("DOMContentLoaded", function() {
     //100 numbers in a grid
     const rows = 100;
     const cols = 100;
-    const spacing = 0.2;
+    const spacing = 0.5;
 
     for (let i = 0; i < rows; i++) {
         for (let j = 0; j < cols; j++) {
