@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Move Image Left-Right with Phone Tilt</title>
+    <title>Move Image with Phone Tilt (Up-Down & Left-Right)</title>
     <style>
         body {
             overflow: hidden;
@@ -21,33 +21,39 @@
     </style>
 </head>
 <body>
-    <!-- <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/75/Emblem_of_Astana.svg/480px-Emblem_of_Astana.svg.png"
-         id="myImage" alt="Astana"> -->
-         <img src="https://sburambekova.github.io/AR_first_exp/assets/datasheet.png"
+    <img src="https://sburambekova.github.io/AR_first_exp/assets/datasheet.png"
          id="myImage" alt="Astana">
 
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             let img = document.getElementById("myImage");
-            let sensitivity = 2; // Adjust for smoother/slower movement
-            let posX = 0; // Start at center
+            let sensitivity = 3; // Adjust for smoother/slower movement
+            let posX = 0, posY = 0; // Start at center
 
-            let minX = -window.innerWidth / 2 + 50;  // Left boundary
-            let maxX = window.innerWidth / 2 - 50;   // Right boundary
+            let imgWidth = img.clientWidth; 
+            let imgHeight = img.clientHeight; 
+            let minX = -((imgWidth - window.innerWidth) / 2);  
+            let maxX = (imgWidth - window.innerWidth) / 2;
+            let minY = -((imgHeight - window.innerHeight) / 2);  
+            let maxY = (imgHeight - window.innerHeight) / 2;
 
             if (window.DeviceOrientationEvent) {
                 window.addEventListener("deviceorientation", (event) => {
                     let gamma = event.gamma; // Left (-) / Right (+)
+                    let beta = event.beta;   // Up (-) / Down (+)
 
-                    // ✅ ADD gamma to posX to accumulate movement
+                    // ✅ Directly set posX and posY to prevent drift
                     posX = gamma * sensitivity;
+                    posY = -beta * sensitivity;  // Inverted to match natural motion
 
                     // ✅ Stop image at screen edges
                     if (posX < minX) posX = minX;
                     if (posX > maxX) posX = maxX;
+                    if (posY < minY) posY = minY;
+                    if (posY > maxY) posY = maxY;
 
-                    // ✅ Apply new position (Translate relative to center)
-                    img.style.transform = `translateX(${posX}px)`;
+                    // ✅ Apply new position (Translate in X and Y)
+                    img.style.transform = `translate(${posX}px, ${posY}px)`;
                 });
             } else {
                 alert("Your device does not support motion sensors.");
@@ -56,4 +62,5 @@
     </script>
 </body>
 </html>
+
 
