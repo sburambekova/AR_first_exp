@@ -2,9 +2,12 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Motion-Based Image Movement</title>
+    
     <style>
         body {
+            margin: 0;
             overflow: hidden;
             display: flex;
             justify-content: center;
@@ -12,50 +15,48 @@
             height: 100vh;
             background-color: #f4f4f4;
         }
-        #myImage {
+        #container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+        }
+        #movingImage {
             position: absolute;
-            width: 150px;
+            width: 200px;
             transition: transform 0.1s ease-out;
         }
     </style>
 </head>
 <body>
+    <div id="container">
+        <img id="movingImage" src="https://sburambekova.github.io/AR_first_exp/assets/datasheet.png" alt="Moving Image">
+    </div>
 
-<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/75/Emblem_of_Astana.svg/480px-Emblem_of_Astana.svg.png"
-     id="myImage" alt="astana"/>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            let image = document.getElementById("movingImage");
+            let posX = window.innerWidth / 2 - 100; // Center image initially
+            let sensitivity = 2; // Adjust speed (increase for faster movement)
 
-<script>
-document.addEventListener("DOMContentLoaded", function () {
-    let img = document.getElementById("myImage");
-    let posX = window.innerWidth / 2 - 75; // Center image
-    let posY = window.innerHeight / 2 - 75;
-    let sensitivity = 1.5; // Adjust sensitivity for movement
+            if (window.DeviceOrientationEvent) {
+                window.addEventListener("deviceorientation", (event) => {
+                    let gamma = event.gamma; // Left-right tilt
 
-    if (window.DeviceOrientationEvent) {
-        window.addEventListener("deviceorientation", (event) => {
-            let gamma = event.gamma; // Left-right tilt
-            let beta = event.beta;   // Forward-backward tilt
+                    // Move the image in the opposite direction of phone tilt
+                    posX -= gamma * sensitivity;
 
-            // Move in opposite direction of tilt
-            posX -= gamma * sensitivity;
-            posY -= beta * sensitivity;
+                    // Keep image inside screen bounds
+                    let maxX = window.innerWidth - 200; // Prevent moving out of screen
+                    if (posX < 0) posX = 0;
+                    if (posX > maxX) posX = maxX;
 
-            // Keep image inside screen bounds
-            let maxX = window.innerWidth - 150;
-            let maxY = window.innerHeight - 150;
-            if (posX < 0) posX = 0;
-            if (posX > maxX) posX = maxX;
-            if (posY < 0) posY = 0;
-            if (posY > maxY) posY = maxY;
-
-            // Apply translation and rotation
-            img.style.transform = `translate(${posX}px, ${posY}px) rotate(${gamma}deg)`;
+                    // Update image position
+                    image.style.transform = `translateX(${posX}px)`;
+                });
+            } else {
+                alert("Device motion not supported.");
+            }
         });
-    } else {
-        alert("Your device does not support motion sensors.");
-    }
-});
-</script>
-
+    </script>
 </body>
 </html>
