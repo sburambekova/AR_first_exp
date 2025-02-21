@@ -14,38 +14,37 @@
         }
         img {
             position: absolute;
-            width: 1000px; 
+            width: 200px; /* Adjust image size */
             height: auto;
-            transition: transform 0.1s linear; 
+            transition: transform 0.1s linear; /* Smooth movement */
         }
     </style>
 </head>
 <body>
-    <img src="https://sburambekova.github.io/AR_first_exp/assets/datasheet.png"
-         id="myImage" alt="datasheet">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/75/Emblem_of_Astana.svg/480px-Emblem_of_Astana.svg.png"
+         id="myImage" alt="Astana">
 
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             let img = document.getElementById("myImage");
-            let sensitivity = 3; 
-            let posX = 0;
+            let sensitivity = 1.5; // Adjust for smoother/slower movement
+            let posX = 0; // Start at center
 
-            let imgWidth = img.clientWidth; 
-            let minX = -((imgWidth - window.innerWidth) / 2);  
-            let maxX = (imgWidth - window.innerWidth) / 2;
+            let minX = -window.innerWidth / 2 + 50;  // Left boundary
+            let maxX = window.innerWidth / 2 - 50;   // Right boundary
 
             if (window.DeviceOrientationEvent) {
                 window.addEventListener("deviceorientation", (event) => {
-                    let gamma = event.gamma; 
+                    let gamma = event.gamma; // Left (-) / Right (+)
 
-                  
-                    posX = gamma * sensitivity;
+                    // ✅ ADD gamma to posX to accumulate movement
+                    posX += gamma * sensitivity;
 
-                  
+                    // ✅ Stop image at screen edges
                     if (posX < minX) posX = minX;
                     if (posX > maxX) posX = maxX;
 
-                  
+                    // ✅ Apply new position (Translate relative to center)
                     img.style.transform = `translateX(${posX}px)`;
                 });
             } else {
