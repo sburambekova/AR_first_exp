@@ -40,11 +40,12 @@
                 window.addEventListener("deviceorientation", (event) => {
                     let gamma = event.gamma; 
                     
-                    if (Math.abs(gamma) < 15) {
-                        return;
+                    let xvelocity = 0;
+                    if (Math.abs(gamma) > 15) {
+                        xvelocity = Math.sign(gamma) * sensitivity;
                     }
                  
-                    posX -= gamma * sensitivity;
+                    posX -= xvelocity;
 
                    
                     if (posX < minX) posX = minX;
