@@ -82,8 +82,8 @@
                     let beta = (event.beta || 0);
                     
                     // Apply movement with sensitivity
-                    posX += gamma * (sensitivity * 0.1);
-                    posY += beta * (sensitivity * 0.1);
+                    posX = gamma * (sensitivity * 0.1);
+                    posY = beta * (sensitivity * 0.1);
         
                     // Clamp values to boundaries
                     posX = Math.max(minX, Math.min(posX, maxX));
