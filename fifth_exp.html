@@ -1,13 +1,11 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Motion-Based Image Movement</title>
-    
     <style>
         body {
-            margin: 0;
             overflow: hidden;
             display: flex;
             justify-content: center;
@@ -15,48 +13,53 @@
             height: 100vh;
             background-color: #f4f4f4;
         }
-        #container {
-            position: relative;
-            width: 100vw;
-            height: 100vh;
-        }
-        #movingImage {
+        #myImage {
             position: absolute;
-            width: 200px;
-            transition: transform 0.1s ease-out;
+            width: 150px;
+            transition: transform 0.2s ease-out;
         }
     </style>
 </head>
 <body>
-    <div id="container">
-        <img id="movingImage" src="https://sburambekova.github.io/AR_first_exp/assets/datasheet.png" alt="Moving Image">
-    </div>
 
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            let image = document.getElementById("movingImage");
-            let posX = window.innerWidth / 2 - 100; // Center image initially
-            let sensitivity = 1; // Adjust speed (increase for faster movement)
+<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/75/Emblem_of_Astana.svg/480px-Emblem_of_Astana.svg.png"
+     id="myImage" alt="astana"/>
 
-            if (window.DeviceOrientationEvent) {
-                window.addEventListener("deviceorientation", (event) => {
-                    let gamma = event.gamma; // Left-right tilt
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    let img = document.getElementById("myImage");
+    let sensitivity = 0.5; // Slower movement
+    let posX = window.innerWidth / 2 - 75; // Start at center
+    let posY = window.innerHeight / 2 - 75;
 
-                    // Move the image in the opposite direction of phone tilt
-                    posX -= gamma * sensitivity;
+    if (window.DeviceOrientationEvent) {
+        window.addEventListener("deviceorientation", (event) => {
+            let gamma = event.gamma; // Left-right tilt
+            let beta = event.beta;   // Forward-backward tilt
 
-                    // Keep image inside screen bounds
-                    let maxX = window.innerWidth - 200; // Prevent moving out of screen
-                    // if (posX < 0) posX = 0;
-                    if (posX > maxX) posX = maxX;
+            // Move image based on motion (with slower speed)
+            posX -= gamma * sensitivity;
+            posY -= beta * sensitivity;
 
-                    // Update image position
-                    image.style.transform = `translateX(${posX}px)`;
-                });
-            } else {
-                alert("Device motion not supported.");
-            }
+            // ✅ Prevent going outside screen
+            let maxX = window.innerWidth - 150; // Right border
+            let maxY = window.innerHeight - 150; // Bottom border
+            let minX = 0;  // Left border
+            let minY = 0;  // Top border
+            
+            if (posX < minX) posX = minX; // Stop at left
+            if (posX > maxX) posX = maxX; // Stop at right
+            if (posY < minY) posY = minY; // Stop at top
+            if (posY > maxY) posY = maxY; // Stop at bottom
+
+            // Apply position update
+            img.style.transform = `translate(${posX}px, ${posY}px) rotate(${gamma}deg)`;
         });
-    </script>
+    } else {
+        alert("Your device does not support motion sensors.");
+    }
+});
+</script>
+
 </body>
 </html>
