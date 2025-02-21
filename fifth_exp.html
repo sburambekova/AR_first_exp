@@ -14,9 +14,9 @@
         }
         img {
             position: absolute;
-            width: 200px; /* Adjust image size */
+            width: 1000px; 
             height: auto;
-            transition: transform 0.1s linear; /* Smooth movement */
+            transition: transform 0.1s linear;
         }
     </style>
 </head>
@@ -27,24 +27,23 @@
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             let img = document.getElementById("myImage");
-            let sensitivity = 1.5; // Adjust for smoother/slower movement
-            let posX = 0; // Start at center
+            let sensitivity = 3; 
+            let posX = 0; 
 
-            let minX = -window.innerWidth / 2 + 50;  // Left boundary
-            let maxX = window.innerWidth / 2 - 50;   // Right boundary
+            let minX = -window.innerWidth / 2 + 50;  
+            let maxX = window.innerWidth / 2 - 50;   
 
             if (window.DeviceOrientationEvent) {
                 window.addEventListener("deviceorientation", (event) => {
-                    let gamma = event.gamma; // Left (-) / Right (+)
+                    let gamma = event.gamma; 
 
-                    // ✅ ADD gamma to posX to accumulate movement
+                 
                     posX += gamma * sensitivity;
 
-                    // ✅ Stop image at screen edges
+                   
                     if (posX < minX) posX = minX;
                     if (posX > maxX) posX = maxX;
 
-                    // ✅ Apply new position (Translate relative to center)
                     img.style.transform = `translateX(${posX}px)`;
                 });
             } else {
