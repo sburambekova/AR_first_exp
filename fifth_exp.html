@@ -41,7 +41,7 @@
         document.addEventListener("DOMContentLoaded", function () {
             let img = document.getElementById("myImage");
             let permissionButton = document.getElementById("permission");
-            let sensitivity = 3; // Adjust for smoother/slower movement
+            let sensitivity = 2; // Adjust for movement speed
             let posX = 0, posY = 0;
 
             function updateBoundaries() {
@@ -60,18 +60,17 @@
 
                 if (window.DeviceOrientationEvent) {
                     window.addEventListener("deviceorientation", (event) => {
-                        let gamma = event.gamma; // Left (-) / Right (+)
-                        let beta = event.beta;   // Up (-) / Down (+)
+                        let gamma = event.gamma || 0; // Left (-) / Right (+)
+                        let beta = event.beta || 0;   // Up (-) / Down (+)
 
-                        // ✅ Adjust movement based on tilt
                         posX += gamma * sensitivity;
                         posY += -beta * sensitivity;  // Inverted for natural movement
 
-                        // ✅ Stop at edges
+                        // ✅ Prevent going off screen
                         posX = Math.max(minX, Math.min(posX, maxX));
                         posY = Math.max(minY, Math.min(posY, maxY));
 
-                        // ✅ Move image smoothly
+                        // ✅ Apply new position
                         img.style.transform = `translate(${posX}px, ${posY}px)`;
                     });
                 } else {
@@ -79,7 +78,7 @@
                 }
             }
 
-            // ✅ Request permission on iOS
+            // ✅ Request motion permission on iOS
             if (typeof DeviceOrientationEvent.requestPermission === "function") {
                 permissionButton.style.display = "block";
                 permissionButton.addEventListener("click", async () => {
@@ -96,7 +95,3 @@
     </script>
 </body>
 </html>
-
-
-
-
