@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -24,7 +24,7 @@
     <!-- <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/75/Emblem_of_Astana.svg/480px-Emblem_of_Astana.svg.png"
          id="myImage" alt="Astana"> -->
 
-         <img src="https://sburambekova.github.io/AR_first_exp/assets/datasheet.png"
+         <!-- <img src="https://sburambekova.github.io/AR_first_exp/assets/datasheet.png"
          id="myImage" alt="datasheet">
 
     <script>
@@ -48,6 +48,73 @@
                     if (posX > maxX) posX = maxX;
 
                     img.style.transform = `translateX(${posX}px)`;
+                });
+            } else {
+                alert("Your device does not support motion sensors.");
+            }
+        });
+    </script>
+</body>
+</html> --> 
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Move Image with Phone Tilt (Up-Down & Left-Right)</title>
+    <style>
+        body {
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f0f0f0;
+        }
+        img {
+            position: absolute;
+            width: 800px; /* Adjust image size */
+            height: auto;
+            transition: transform 0.1s linear; /* Smooth movement */
+        }
+    </style>
+</head>
+<body>
+    <img src="https://sburambekova.github.io/AR_first_exp/assets/datasheet.png"
+         id="myImage" alt="Astana">
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            let img = document.getElementById("myImage");
+            let sensitivity = 2; // Adjust for smoother/slower movement
+            let posX = 0, posY = 0; // Start at center
+
+            let imgWidth = img.clientWidth; 
+            let imgHeight = img.clientHeight; 
+            let minX = -((imgWidth - window.innerWidth) / 2);  
+            let maxX = (imgWidth - window.innerWidth) / 2;
+            let minY = -((imgHeight - window.innerHeight) / 2);  
+            let maxY = (imgHeight - window.innerHeight) / 2;
+
+            if (window.DeviceOrientationEvent) {
+                window.addEventListener("deviceorientation", (event) => {
+                    let gamma = event.gamma; // Left (-) / Right (+)
+                    let beta = event.beta;   // Up (-) / Down (+)
+
+                    // ✅ Apply movement for both X and Y
+                    posX += gamma * sensitivity;
+                    posY += beta * sensitivity;
+
+                    // ✅ Stop image at screen edges
+                    if (posX < minX) posX = minX;
+                    if (posX > maxX) posX = maxX;
+                    if (posY < minY) posY = minY;
+                    if (posY > maxY) posY = maxY;
+
+                    // ✅ Apply new position (Translate in X and Y)
+                    img.style.transform = `translate(${posX}px, ${posY}px)`;
                 });
             } else {
                 alert("Your device does not support motion sensors.");
