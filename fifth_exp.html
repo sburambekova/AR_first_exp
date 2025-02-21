@@ -36,7 +36,7 @@
         document.addEventListener("DOMContentLoaded", function () {
             let image = document.getElementById("movingImage");
             let posX = window.innerWidth / 2 - 100; // Center image initially
-            let sensitivity = 2; // Adjust speed (increase for faster movement)
+            let sensitivity = 1; // Adjust speed (increase for faster movement)
 
             if (window.DeviceOrientationEvent) {
                 window.addEventListener("deviceorientation", (event) => {
@@ -47,7 +47,7 @@
 
                     // Keep image inside screen bounds
                     let maxX = window.innerWidth - 200; // Prevent moving out of screen
-                    if (posX < 0) posX = 0;
+                    // if (posX < 0) posX = 0;
                     if (posX > maxX) posX = maxX;
 
                     // Update image position
