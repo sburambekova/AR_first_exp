@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Motion-Based Image Movement</title>
+    <style>
+        body {
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f4f4f4;
+        }
+        #myImage {
+            position: absolute;
+            width: 150px;
+            transition: transform 0.1s ease-out;
+        }
+    </style>
+</head>
+<body>
+
+<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/75/Emblem_of_Astana.svg/480px-Emblem_of_Astana.svg.png"
+     id="myImage" alt="astana"/>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    let img = document.getElementById("myImage");
+    let posX = window.innerWidth / 2 - 75; // Center image
+    let posY = window.innerHeight / 2 - 75;
+    let sensitivity = 1.5; // Adjust sensitivity for movement
+
+    if (window.DeviceOrientationEvent) {
+        window.addEventListener("deviceorientation", (event) => {
+            let gamma = event.gamma; // Left-right tilt
+            let beta = event.beta;   // Forward-backward tilt
+
+            // Move in opposite direction of tilt
+            posX -= gamma * sensitivity;
+            posY -= beta * sensitivity;
+
+            // Keep image inside screen bounds
+            let maxX = window.innerWidth - 150;
+            let maxY = window.innerHeight - 150;
+            if (posX < 0) posX = 0;
+            if (posX > maxX) posX = maxX;
+            if (posY < 0) posY = 0;
+            if (posY > maxY) posY = maxY;
+
+            // Apply translation and rotation
+            img.style.transform = `translate(${posX}px, ${posY}px) rotate(${gamma}deg)`;
+        });
+    } else {
+        alert("Your device does not support motion sensors.");
+    }
+});
+</script>
+
+</body>
+</html>
