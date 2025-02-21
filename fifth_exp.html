@@ -28,37 +28,39 @@
 <script>
 document.addEventListener("DOMContentLoaded", function () {
     let img = document.getElementById("myImage");
-    let sensitivity = 0.5; // Slower movement
-    let posX = window.innerWidth / 2 - 75; // Start at center
+    let sensitivity = 0.5; // Adjust for smoother movement
+    let posX = window.innerWidth / 2 - 75; // Centered start
     let posY = window.innerHeight / 2 - 75;
 
     if (window.DeviceOrientationEvent) {
         window.addEventListener("deviceorientation", (event) => {
-            let gamma = event.gamma; // Left-right tilt
-            let beta = event.beta;   // Forward-backward tilt
+            let gamma = event.gamma; // Left (-) / Right (+)
+            let beta = event.beta;   // Up (-) / Down (+)
 
-            // Move image based on motion (with slower speed)
-            posX -= gamma * sensitivity;
-            posY -= beta * sensitivity;
+            // ✅ Move left when tilting left
+            posX += gamma * sensitivity; 
+            posY += beta * sensitivity;
 
-            // ✅ Prevent going outside screen
-            let maxX = window.innerWidth - 150; // Right border
-            let maxY = window.innerHeight - 150; // Bottom border
-            let minX = 0;  // Left border
-            let minY = 0;  // Top border
-            
-            if (posX < minX) posX = minX; // Stop at left
-            if (posX > maxX) posX = maxX; // Stop at right
-            if (posY < minY) posY = minY; // Stop at top
-            if (posY > maxY) posY = maxY; // Stop at bottom
+            // ✅ Set correct movement boundaries
+            let minX = -window.innerWidth / 2 + 75; 
+            let maxX = window.innerWidth / 2 - 75; 
+            let minY = -window.innerHeight / 2 + 75; 
+            let maxY = window.innerHeight / 2 - 75;
 
-            // Apply position update
+            // ✅ Stop image at screen edges
+            if (posX < minX) posX = minX; 
+            if (posX > maxX) posX = maxX;
+            if (posY < minY) posY = minY;
+            if (posY > maxY) posY = maxY;
+
+            // ✅ Apply updated position
             img.style.transform = `translate(${posX}px, ${posY}px) rotate(${gamma}deg)`;
         });
     } else {
         alert("Your device does not support motion sensors.");
     }
 });
+
 </script>
 
 </body>
