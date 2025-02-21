@@ -18,16 +18,32 @@
             height: auto;
             transition: transform 0.1s linear; /* Smooth movement */
         }
+        #startButton {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+            z-index: 1000;
+        }
     </style>
 </head>
 <body>
+    <button id="startButton">Enable Motion</button>
+
     <img src="https://sburambekova.github.io/AR_first_exp/assets/datasheet.png"
          id="myImage" alt="Astana">
 
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             let img = document.getElementById("myImage");
-            let sensitivity = 3; // Adjust for smoother/slower movement
+            let startButton = document.getElementById("startButton");
+            let sensitivity = 2; // Adjust for smoother/slower movement
             let posX = 0, posY = 0; // Start at center
 
             let imgWidth = img.clientWidth; 
@@ -37,27 +53,44 @@
             let minY = -((imgHeight - window.innerHeight) / 2);  
             let maxY = (imgHeight - window.innerHeight) / 2;
 
-            if (window.DeviceOrientationEvent) {
-                window.addEventListener("deviceorientation", (event) => {
-                    let gamma = event.gamma; // Left (-) / Right (+)
-                    let beta = event.beta;   // Up (-) / Down (+)
+            function handleOrientation(event) {
+                let gamma = event.gamma; // Left (-) / Right (+)
+                let beta = event.beta;   // Up (-) / Down (+)
 
-                    // ✅ Directly set posX and posY to prevent drift
-                    posX = gamma * sensitivity;
-                    posY = -beta * sensitivity;  // Inverted to match natural motion
+                console.log(`Gamma: ${gamma}, Beta: ${beta}`); // Debugging
 
-                    // ✅ Stop image at screen edges
-                    if (posX < minX) posX = minX;
-                    if (posX > maxX) posX = maxX;
-                    if (posY < minY) posY = minY;
-                    if (posY > maxY) posY = maxY;
+                // ✅ Adjust position based on phone movement
+                posX = gamma * sensitivity;
+                posY = -beta * sensitivity;  // Inverted to match natural motion
 
-                    // ✅ Apply new position (Translate in X and Y)
-                    img.style.transform = `translate(${posX}px, ${posY}px)`;
-                });
-            } else {
-                alert("Your device does not support motion sensors.");
+                // ✅ Stop image at screen edges
+                posX = Math.max(minX, Math.min(posX, maxX));
+                posY = Math.max(minY, Math.min(posY, maxY));
+
+                // ✅ Apply new position (Translate in X and Y)
+                img.style.transform = `translate(${posX}px, ${posY}px)`;
             }
+
+            function requestPermission() {
+                if (
+                    typeof DeviceOrientationEvent !== "undefined" &&
+                    typeof DeviceOrientationEvent.requestPermission === "function"
+                ) {
+                    DeviceOrientationEvent.requestPermission()
+                        .then(permissionState => {
+                            if (permissionState === "granted") {
+                                window.addEventListener("deviceorientation", handleOrientation);
+                                startButton.style.display = "none"; // Hide button after enabling
+                            }
+                        })
+                        .catch(console.error);
+                } else {
+                    window.addEventListener("deviceorientation", handleOrientation);
+                    startButton.style.display = "none"; // Hide button after enabling
+                }
+            }
+
+            startButton.addEventListener("click", requestPermission);
         });
     </script>
 </body>
