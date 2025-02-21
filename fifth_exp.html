@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Move Image with Phone Tilt (Auto-Start)</title>
+    <title>Move Image Left-Right with Phone Tilt</title>
     <style>
         body {
             overflow: hidden;
@@ -14,73 +14,44 @@
         }
         img {
             position: absolute;
-            width: 1000px; /* Adjust image size */
+            width: 1000px; 
             height: auto;
-            transition: transform 0.1s linear; /* Smooth movement */
+            transition: transform 0.1s linear; 
         }
     </style>
 </head>
 <body>
     <img src="https://sburambekova.github.io/AR_first_exp/assets/datasheet.png"
-         id="myImage" alt="Image">
+         id="myImage" alt="datasheet">
 
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             let img = document.getElementById("myImage");
-            let sensitivity = 2; // Adjust for movement speed
-            let posX = 0, posY = 0;
+            let sensitivity = 3; 
+            let posX = 0;
 
-            function updateBoundaries() {
-                let imgWidth = img.clientWidth; 
-                let imgHeight = img.clientHeight; 
-                let minX = -((imgWidth - window.innerWidth) / 2);  
-                let maxX = (imgWidth - window.innerWidth) / 2;
-                let minY = -((imgHeight - window.innerHeight) / 2);  
-                let maxY = (imgHeight - window.innerHeight) / 2;
+            let imgWidth = img.clientWidth; 
+            let minX = -((imgWidth - window.innerWidth) / 2);  
+            let maxX = (imgWidth - window.innerWidth) / 2;
 
-                return { minX, maxX, minY, maxY };
-            }
+            if (window.DeviceOrientationEvent) {
+                window.addEventListener("deviceorientation", (event) => {
+                    let gamma = event.gamma; 
 
-            function startMotion() {
-                let { minX, maxX, minY, maxY } = updateBoundaries();
+                  
+                    posX = gamma * sensitivity;
 
-                if (window.DeviceOrientationEvent) {
-                    window.addEventListener("deviceorientation", (event) => {
-                        let gamma = event.gamma || 0; // Left (-) / Right (+)
-                        let beta = event.beta || 0;   // Up (-) / Down (+)
+                  
+                    if (posX < minX) posX = minX;
+                    if (posX > maxX) posX = maxX;
 
-                        posX += gamma * sensitivity;
-                        posY += -beta * sensitivity;  // Inverted for natural movement
-
-                        // ✅ Prevent going off screen
-                        posX = Math.max(minX, Math.min(posX, maxX));
-                        posY = Math.max(minY, Math.min(posY, maxY));
-
-                        // ✅ Apply new position
-                        img.style.transform = `translate(${posX}px, ${posY}px)`;
-                    });
-                } else {
-                    alert("Your device does not support motion sensors.");
-                }
-            }
-
-            // ✅ Automatically request motion permission on iOS
-            if (typeof DeviceOrientationEvent.requestPermission === "function") {
-                DeviceOrientationEvent.requestPermission()
-                    .then(permission => {
-                        if (permission === "granted") {
-                            startMotion();
-                        } else {
-                            alert("Motion access denied. Reload the page and allow motion access.");
-                        }
-                    })
-                    .catch(console.error);
+                  
+                    img.style.transform = `translateX(${posX}px)`;
+                });
             } else {
-                startMotion(); // Works automatically on Android
+                alert("Your device does not support motion sensors.");
             }
         });
     </script>
 </body>
 </html>
-
-
