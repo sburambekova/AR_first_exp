@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Move Image with Phone Tilt (Up-Down & Left-Right)</title>
+    <title>Move Image with Phone Motion</title>
     <style>
         body {
             overflow: hidden;
@@ -18,82 +18,77 @@
             height: auto;
             transition: transform 0.1s linear; /* Smooth movement */
         }
-        #startButton {
+        #permission {
             position: absolute;
-            top: 20px;
+            top: 50%;
             left: 50%;
-            transform: translateX(-50%);
-            padding: 10px 20px;
-            font-size: 16px;
-            background-color: #007bff;
-            color: white;
-            border: none;
+            transform: translate(-50%, -50%);
+            padding: 15px;
+            background: white;
+            border: 2px solid black;
+            font-size: 18px;
             cursor: pointer;
-            z-index: 1000;
+            display: none;
         }
     </style>
 </head>
 <body>
-    <button id="startButton">Enable Motion</button>
-
+    <button id="permission">Enable Motion Control</button>
     <img src="https://sburambekova.github.io/AR_first_exp/assets/datasheet.png"
          id="myImage" alt="Astana">
 
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             let img = document.getElementById("myImage");
-            let startButton = document.getElementById("startButton");
-            let sensitivity = 2; // Adjust for smoother/slower movement
-            let posX = 0, posY = 0; // Start at center
+            let permissionButton = document.getElementById("permission");
+            let sensitivity = 0.5; // Adjust for smoother/slower movement
+            let posX = 0, posY = 0;
 
-            let imgWidth = img.clientWidth; 
-            let imgHeight = img.clientHeight; 
-            let minX = -((imgWidth - window.innerWidth) / 2);  
-            let maxX = (imgWidth - window.innerWidth) / 2;
-            let minY = -((imgHeight - window.innerHeight) / 2);  
-            let maxY = (imgHeight - window.innerHeight) / 2;
+            let minX = -window.innerWidth / 2 + 50;  // Left boundary
+            let maxX = window.innerWidth / 2 - 50;   // Right boundary
+            let minY = -window.innerHeight / 2 + 50; // Top boundary
+            let maxY = window.innerHeight / 2 - 50;  // Bottom boundary
 
-            function handleOrientation(event) {
-                let gamma = event.gamma; // Left (-) / Right (+)
-                let beta = event.beta;   // Up (-) / Down (+)
+            function startMotion() {
+                if (window.DeviceOrientationEvent) {
+                    window.addEventListener("deviceorientation", (event) => {
+                        let gamma = event.gamma; // Left (-) / Right (+)
+                        let beta = event.beta;   // Forward (-) / Backward (+)
 
-                console.log(`Gamma: ${gamma}, Beta: ${beta}`); // Debugging
+                        posX += gamma * sensitivity;
+                        posY += beta * sensitivity;
 
-                // ✅ Adjust position based on phone movement
-                posX = gamma * sensitivity;
-                posY = -beta * sensitivity;  // Inverted to match natural motion
+                        // Prevent moving off the screen
+                        if (posX < minX) posX = minX;
+                        if (posX > maxX) posX = maxX;
+                        if (posY < minY) posY = minY;
+                        if (posY > maxY) posY = maxY;
 
-                // ✅ Stop image at screen edges
-                posX = Math.max(minX, Math.min(posX, maxX));
-                posY = Math.max(minY, Math.min(posY, maxY));
-
-                // ✅ Apply new position (Translate in X and Y)
-                img.style.transform = `translate(${posX}px, ${posY}px)`;
-            }
-
-            function requestPermission() {
-                if (
-                    typeof DeviceOrientationEvent !== "undefined" &&
-                    typeof DeviceOrientationEvent.requestPermission === "function"
-                ) {
-                    DeviceOrientationEvent.requestPermission()
-                        .then(permissionState => {
-                            if (permissionState === "granted") {
-                                window.addEventListener("deviceorientation", handleOrientation);
-                                startButton.style.display = "none"; // Hide button after enabling
-                            }
-                        })
-                        .catch(console.error);
+                        // Move the image
+                        img.style.transform = `translate(${posX}px, ${posY}px)`;
+                    });
                 } else {
-                    window.addEventListener("deviceorientation", handleOrientation);
-                    startButton.style.display = "none"; // Hide button after enabling
+                    alert("Your device does not support motion sensors.");
                 }
             }
 
-            startButton.addEventListener("click", requestPermission);
+            // Request permission on iOS
+            if (typeof DeviceOrientationEvent.requestPermission === "function") {
+                permissionButton.style.display = "block";
+                permissionButton.addEventListener("click", async () => {
+                    let permission = await DeviceOrientationEvent.requestPermission();
+                    if (permission === "granted") {
+                        permissionButton.style.display = "none";
+                        startMotion();
+                    }
+                });
+            } else {
+                startMotion();
+            }
         });
     </script>
 </body>
 </html>
+
 
 
