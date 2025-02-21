@@ -35,10 +35,10 @@
                     let gamma = event.gamma; // Left (-) / Right (+)
 
                     // ✅ Move left when tilting left, right when tilting right
-                    posX = gamma * sensitivity;
+                    posX = +gamma * sensitivity;
 
                     // ✅ Stop image at screen edges
-                    let minX = 20; // Left boundary
+                    let minX = 220; // Left boundary
                     let maxX = window.innerWidth - 220; // Right boundary
 
                     if (posX < minX) posX = minX; 
