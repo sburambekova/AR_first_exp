@@ -28,7 +28,7 @@
 <script>
 document.addEventListener("DOMContentLoaded", function () {
     let img = document.getElementById("myImage");
-    let sensitivity = 0.3; // Adjust for smoother movement
+    let sensitivity = 0.2; // Adjust for smoother movement
     let posX = window.innerWidth / 2 - 75; // Centered start
     let posY = window.innerHeight / 2 - 75;
 
@@ -39,7 +39,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
             // ✅ Move left when tilting left
             posX -= gamma * sensitivity; 
-            posY += beta * sensitivity;
+            posY -= beta * sensitivity;
 
             // ✅ Set correct movement boundaries
             let minX = -window.innerWidth / 2 + 75; 
