@@ -37,11 +37,11 @@
             let maxX = window.innerWidth / 2 - 50;   
 
             if (window.DeviceOrientationEvent) {
-                window.addEventListener("deviceorientation", (event) => {
-                    let gamma = event.gamma; 
+                window.addEventListener("devicemotion", (event) => {
+                    let xacceleration = event.acceleration.x; 
 
                  
-                    posX -= gamma * sensitivity;
+                    posX -= xacceleration * sensitivity;
 
                    
                     if (posX < minX) posX = minX;
