@@ -16,7 +16,7 @@
             position: absolute;
             width: 1000px; 
             height: auto;
-            transition: transform 1s linear;
+            transition: transform 7s linear;
         }
     </style>
 </head>
@@ -37,11 +37,11 @@
             let maxX = window.innerWidth / 2 - 50;   
 
             if (window.DeviceOrientationEvent) {
-                window.addEventListener("devicemotion", (event) => {
-                    let xacceleration = event.acceleration.x; 
+                window.addEventListener("deviceorientation", (event) => {
+                    let gamma = event.gamma; 
 
                  
-                    posX -= xacceleration * sensitivity;
+                    posX -= gamma * sensitivity;
 
                    
                     if (posX < minX) posX = minX;
