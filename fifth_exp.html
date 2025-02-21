@@ -29,8 +29,8 @@
 document.addEventListener("DOMContentLoaded", function () {
     let img = document.getElementById("myImage");
     let sensitivity = 0.2; // Adjust for smoother movement
-    let posX = window.innerWidth / 2 - 75; // Centered start
-    let posY = window.innerHeight / 2 - 75;
+    let posX = window.innerWidth / 2 + 75; // Centered start
+    let posY = window.innerHeight / 2 + 75;
 
     if (window.DeviceOrientationEvent) {
         window.addEventListener("deviceorientation", (event) => {
