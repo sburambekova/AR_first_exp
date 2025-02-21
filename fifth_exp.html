@@ -1,9 +1,8 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Motion-Based Image Movement</title>
+    <title>Move Image Left-Right with Phone Tilt</title>
     <style>
         body {
             overflow: hidden;
@@ -11,57 +10,48 @@
             justify-content: center;
             align-items: center;
             height: 100vh;
-            background-color: #f4f4f4;
+            background-color: #f0f0f0;
         }
-        #myImage {
+        img {
             position: absolute;
-            width: 150px;
-            transition: transform 0.2s ease-out;
+            width: 200px; /* Adjust image size */
+            height: auto;
+            transition: transform 0.1s linear; /* Smooth movement */
         }
     </style>
 </head>
 <body>
+    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/75/Emblem_of_Astana.svg/480px-Emblem_of_Astana.svg.png"
+         id="myImage" alt="Astana">
 
-<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/75/Emblem_of_Astana.svg/480px-Emblem_of_Astana.svg.png"
-     id="myImage" alt="astana"/>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            let img = document.getElementById("myImage");
+            let sensitivity = 0.5; // Adjust for smoother/slower movement
+            let posX = window.innerWidth / 2 - 100; // Start at center
 
-<script>
-document.addEventListener("DOMContentLoaded", function () {
-    let img = document.getElementById("myImage");
-    let sensitivity = 0.2; // Adjust for smoother movement
-    let posX = window.innerWidth / 2 + 75; // Centered start
-    let posY = window.innerHeight / 2 + 75;
+            if (window.DeviceOrientationEvent) {
+                window.addEventListener("deviceorientation", (event) => {
+                    let gamma = event.gamma; // Left (-) / Right (+)
 
-    if (window.DeviceOrientationEvent) {
-        window.addEventListener("deviceorientation", (event) => {
-            let gamma = event.gamma; // Left (-) / Right (+)
-            let beta = event.beta;   // Up (-) / Down (+)
+                    // ✅ Move left when tilting left, right when tilting right
+                    posX += gamma * sensitivity;
 
-            // ✅ Move left when tilting left
-            posX -= gamma * sensitivity; 
-            posY -= beta * sensitivity;
+                    // ✅ Stop image at screen edges
+                    let minX = 20; // Left boundary
+                    let maxX = window.innerWidth - 220; // Right boundary
 
-            // ✅ Set correct movement boundaries
-            let minX = -window.innerWidth / 2 + 75; 
-            let maxX = window.innerWidth / 2 - 75; 
-            let minY = -window.innerHeight / 2 + 75; 
-            let maxY = window.innerHeight / 2 - 75;
+                    if (posX < minX) posX = minX; 
+                    if (posX > maxX) posX = maxX;
 
-            // ✅ Stop image at screen edges
-            if (posX < minX) posX = minX; 
-            if (posX > maxX) posX = maxX;
-            if (posY < minY) posY = minY;
-            if (posY > maxY) posY = maxY;
-
-            // ✅ Apply updated position
-            img.style.transform = `translate(${posX}px, ${posY}px) rotate(${gamma}deg)`;
+                    // ✅ Apply new position
+                    img.style.transform = `translateX(${posX}px)`;
+                });
+            } else {
+                alert("Your device does not support motion sensors.");
+            }
         });
-    } else {
-        alert("Your device does not support motion sensors.");
-    }
-});
-
-</script>
-
+    </script>
 </body>
 </html>
+
