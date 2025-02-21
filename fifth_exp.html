@@ -38,7 +38,7 @@
                     posX += gamma * sensitivity;
 
                     // ✅ Stop image at screen edges
-                    let minX = window.innerWidth + 220; // Left boundary
+                    let minX = window.innerWidth; // Left boundary
                     let maxX = window.innerWidth - 220; // Right boundary
 
                     if (posX < minX) posX = minX; 
