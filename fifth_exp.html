@@ -27,25 +27,25 @@
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             let img = document.getElementById("myImage");
-            let sensitivity = 0.2; // Adjust for smoother/slower movement
+            let sensitivity = 1.5; // Adjust for smoother/slower movement
             let posX = window.innerWidth / 2 - 100; // Start at center
 
             if (window.DeviceOrientationEvent) {
                 window.addEventListener("deviceorientation", (event) => {
                     let gamma = event.gamma; // Left (-) / Right (+)
 
-                    // ✅ Move left when tilting left, right when tilting right
-                    posX = +gamma * sensitivity;
+                    // ✅ ADD gamma to posX instead of replacing it
+                    posX += gamma * sensitivity;
 
                     // ✅ Stop image at screen edges
-                    let minX = -220; // Left boundary
+                    let minX = 20; // Left boundary
                     let maxX = window.innerWidth - 220; // Right boundary
 
                     if (posX < minX) posX = minX; 
                     if (posX > maxX) posX = maxX;
 
                     // ✅ Apply new position
-                    img.style.transform = `translateX(${posX}px)`;
+                    img.style.transform = `translateX(${posX - (window.innerWidth / 2)}px)`;
                 });
             } else {
                 alert("Your device does not support motion sensors.");
@@ -54,4 +54,3 @@
     </script>
 </body>
 </html>
-
