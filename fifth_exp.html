@@ -59,11 +59,19 @@
 
             function moveImage(gamma, beta) {
                 let xvelocity = 0, yvelocity = 0;
+                let deadZone = 5; // If within ±5 degrees, stop movement
 
-                if (Math.abs(gamma) > 0) {
-                    xvelocity = Math.sign(gamma) * sensitivity;
+                if (Math.abs(gamma) > deadZone) {  
+                    xvelocity = -Math.sign(gamma) * sensitivity;
                 }
-                if (Math.abs(beta) > 0) {
+                if (Math.abs(beta) > deadZone) {  
+                    yvelocity = Math.sign(beta) * sensitivity;
+                }
+
+                if (Math.abs(gamma) > 5) {  // Side tilt (left/right)
+                    xvelocity = -Math.sign(gamma) * sensitivity;
+                }
+                if (Math.abs(beta) > 5) {  // Front tilt (up/down)
                     yvelocity = Math.sign(beta) * sensitivity;
                 }
                 if (Math.abs(gamma) == 0 || Math.abs(beta) == 0){
