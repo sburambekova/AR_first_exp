@@ -17,7 +17,7 @@
             position: absolute;
             width: 1000px; 
             height: auto;
-            transition: transform 1s linear;
+            transition: transform 0.5s linear;
         }
         button {
             position: fixed;
@@ -60,7 +60,7 @@
 
 
             function updateImage() {
-                let deadZone = 10; // Stop movement if inside this range
+                let deadZone = 20; // Stop movement if inside this range
                 let xvelocity = 0, yvelocity = 0;
 
                 if (Math.abs(gamma) < deadZone) {
