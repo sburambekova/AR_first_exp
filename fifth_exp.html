@@ -51,16 +51,15 @@
 
             let imgWidth = img.clientWidth; 
             let imgHeight = img.clientHeight; 
-            let minX = -((imgWidth - window.innerWidth) / 2);  
-            let maxX = (imgWidth - window.innerWidth) / 2;
-            let minY = -((imgHeight - window.innerHeight) / 2);  
-            let maxY = (imgHeight - window.innerHeight) / 2;
+            let minX = -((imgWidth - window.innerWidth) / 2 +50);  
+            let maxX = (imgWidth - window.innerWidth) / 2 + 50;
+            let minY = -((imgHeight - window.innerHeight) / 2 - 50);  
+            let maxY = (imgHeight - window.innerHeight) / 2 + 50;
 
-            console.log("Button should be visible. Checking:", button);
 
 
             function updateImage() {
-                let deadZone = 5; // Stop movement if inside this range
+                let deadZone = 1; // Stop movement if inside this range
                 let xvelocity = 0, yvelocity = 0;
 
                 if (Math.abs(gamma) > deadZone) {
