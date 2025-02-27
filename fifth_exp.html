@@ -18,17 +18,27 @@
             height: auto;
             transition: transform 0.1s linear;
         }
+        button {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 10px 20px;
+            font-size: 16px;
+        }
     </style>
 </head>
 <body>
 
     <img src="https://sburambekova.github.io/AR_first_exp/assets/datasheet.png"
          id="myImage" alt="datasheet">
+    <button id="enableMotion">Enable Motion</button>
 
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             let img = document.getElementById("myImage");
-            let sensitivity = 5; 
+            let button = document.getElementById("enableMotion");
+            let sensitivity = 5;
             let posX = 0, posY = 0;
 
             let imgWidth = img.clientWidth; 
@@ -41,34 +51,47 @@
             function moveImage(gamma, beta) {
                 let xvelocity = 0, yvelocity = 0;
 
-                if (Math.abs(gamma) > 15) {
+                if (Math.abs(gamma) > 10) {
                     xvelocity = Math.sign(gamma) * sensitivity;
                 }
-                if (Math.abs(beta) > 15) {
+                if (Math.abs(beta) > 10) {
                     yvelocity = Math.sign(beta) * sensitivity;
                 }
 
                 posX -= xvelocity;
                 posY -= yvelocity;
 
-                if (posX < minX) posX = minX;
-                if (posX > maxX) posX = maxX;
-                if (posY < minY) posY = minY;
-                if (posY > maxY) posY = maxY;
+                posX = Math.max(minX, Math.min(maxX, posX));
+                posY = Math.max(minY, Math.min(maxY, posY));
 
                 img.style.transform = `translate(${posX}px, ${posY}px)`;
             }
 
-            if (window.DeviceOrientationEvent) {
-                window.addEventListener("deviceorientation", (event) => {
-                    let gamma = event.gamma; 
-                    let beta = event.beta;
-                    moveImage(gamma, beta);
-                });
-            } else {
-                alert("Your device does not support motion sensors.");
+            function startMotionTracking() {
+                if (typeof DeviceMotionEvent.requestPermission === 'function') {
+                    DeviceMotionEvent.requestPermission().then(permissionState => {
+                        if (permissionState === 'granted') {
+                            window.addEventListener("deviceorientation", function(event) {
+                                moveImage(event.gamma, event.beta);
+                            });
+                        } else {
+                            alert("Motion access denied.");
+                        }
+                    }).catch(console.error);
+                } else {
+                    // For non-iOS devices (Android)
+                    window.addEventListener("deviceorientation", function(event) {
+                        moveImage(event.gamma, event.beta);
+                    });
+                }
             }
+
+            button.addEventListener("click", function () {
+                startMotionTracking();
+                button.style.display = "none"; // Hide button after enabling
+            });
         });
     </script>
 </body>
 </html>
+
