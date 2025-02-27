@@ -45,7 +45,7 @@
         document.addEventListener("DOMContentLoaded", function () {
             let img = document.getElementById("myImage");
             let button = document.getElementById("enableMotion");
-            let sensitivity = 3;
+            let sensitivity = 5;
             let posX = 0, posY = 0;
             let gamma = 0, beta = 0; 
 
@@ -60,7 +60,7 @@
 
 
             function updateImage() {
-                let deadZone = 1; // Stop movement if inside this range
+                let deadZone = 5; // Stop movement if inside this range
                 let xvelocity = 0, yvelocity = 0;
 
                 if (Math.abs(gamma) > deadZone) {
