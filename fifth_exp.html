@@ -67,7 +67,7 @@
                     xvelocity = -Math.sign(gamma) * sensitivity;
                 }
                 if (Math.abs(beta) > deadZone) {
-                    yvelocity = -Math.sign(beta) * sensitivity;
+                    yvelocity = Math.sign(beta) * sensitivity;
                 }
 
                 posX += xvelocity;  
