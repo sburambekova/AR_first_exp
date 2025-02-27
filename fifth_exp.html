@@ -48,19 +48,32 @@
             let posX = 0; 
             let posY = 0;
 
-            let minX = -window.innerWidth / 2 + 50;  
-            let maxX = window.innerWidth / 2 - 50;   
+            let imgWidth = img.clientWidth; 
+            let imgHeight = img.clientHeight; 
+            let minX = -((imgWidth - window.innerWidth) / 2);  
+            let maxX = (imgWidth - window.innerWidth) / 2;
+            let minY = -((imgHeight - window.innerHeight) / 2);  
+            let maxY = (imgHeight - window.innerHeight) / 2;
 
-            let minY = -window.innerHeight/2 + 50;
-            let maxY = -window.innerHeight/2 - 50;
+
+            // let minX = -window.innerWidth / 2 + 50;  
+            // let maxX = window.innerWidth / 2 - 50;   
+
+            // let minY = -window.innerHeight/2 + 50;
+            // let maxY = -window.innerHeight/2 - 50;
 
 
             
-            function moveImage(gamma) {
+            function moveImage(gamma, beta) {
                 let xvelocity = 0;
                 let yvelocity = 0;
-                    if (Math.abs(gamma) > 15) {
+                    if (Math.abs(gamma) > 15 ) {
                         xvelocity = Math.sign(gamma) * sensitivity;
+                        
+                    }
+
+                    if (Math.abs(beta) > 15){
+                        yvelocity = Math.sign(gamma) * sensitivity;
                     }
 
                     console.log("xvelocity:", xvelocity)
@@ -69,22 +82,20 @@
                     posX -= xvelocity;
                     posY -= yvelocity;
 
-                   
+
                     if (posX < minX) posX = minX;
                     if (posX > maxX) posX = maxX;
-                    
-
                     if (posY < minY) posY = minY;
                     if (posY > maxY) posY = maxY;
 
 
-                    img.style.transform = `translateXY(${posX, posY}px)`;
+                    img.style.transform = `translateXY(${posX}px, ${posY}px)`;
             }
 
 
 
             repeat(function() {
-                moveImage(gamma);    
+                moveImage(gamma, beta);    
             })
 
             // if (window.DeviceOrientationEvent) {
