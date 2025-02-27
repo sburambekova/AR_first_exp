@@ -16,7 +16,7 @@
             position: absolute;
             width: 1000px; 
             height: auto;
-            transition: transform 7s linear;
+            /* transition: transform 7s linear; */
         }
     </style>
 </head>
@@ -28,34 +28,73 @@
          id="myImage" alt="datasheet">
 
     <script>
+        function repeat(action) {
+            let count = 10;
+            let intervalId = setInterval(function() {
+                console.log("Executing the action...")
+                action();
+                console.log("Action executed.")
+                count--;
+
+                if (count === 0) {
+                    clearInterval(intervalId);      
+                }
+            }, 1000)
+        }
+
         document.addEventListener("DOMContentLoaded", function () {
             let img = document.getElementById("myImage");
-            let sensitivity = 0.3; 
+            let sensitivity = 5; 
             let posX = 0; 
+            let posY = 0;
 
             let minX = -window.innerWidth / 2 + 50;  
             let maxX = window.innerWidth / 2 - 50;   
 
-            if (window.DeviceOrientationEvent) {
-                window.addEventListener("deviceorientation", (event) => {
-                    let gamma = event.gamma; 
-                    
-                    let xvelocity = 0;
+            let minY = -window.innerHeight/2 + 50;
+            let maxY = -window.innerHeight/2 - 50;
+
+
+            
+            function moveImage(gamma) {
+                let xvelocity = 0;
+                let yvelocity = 0;
                     if (Math.abs(gamma) > 15) {
                         xvelocity = Math.sign(gamma) * sensitivity;
                     }
+
+                    console.log("xvelocity:", xvelocity)
+                    console.log("yvelocity:", yvelocity)
                  
                     posX -= xvelocity;
+                    posY -= yvelocity;
 
                    
                     if (posX < minX) posX = minX;
                     if (posX > maxX) posX = maxX;
+                    
 
-                    img.style.transform = `translateX(${posX}px)`;
-                });
-            } else {
-                alert("Your device does not support motion sensors.");
+                    if (posY < minY) posY = minY;
+                    if (posY > maxY) posY = maxY;
+
+
+                    img.style.transform = `translateXY(${posX, posY}px)`;
             }
+
+
+
+            repeat(function() {
+                moveImage(gamma);    
+            })
+
+            // if (window.DeviceOrientationEvent) {
+            //     window.addEventListener("deviceorientation", (event) => {
+            //         let gamma = event.gamma; 
+            //         moveImage(gamma);
+            //     });
+            // } else {
+            //     alert("Your device does not support motion sensors.");
+            // }
         });
     </script>
 </body>
