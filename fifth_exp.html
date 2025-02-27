@@ -15,8 +15,8 @@
         }
         img {
             position: absolute;
-            width: 2000px; 
-            height: 20000;
+            width: 1500px; 
+            height: 1500px;
             transition: transform 1s linear;
         }
         button {
@@ -67,7 +67,7 @@
                     xvelocity = -Math.sign(gamma) * sensitivity;
                 }
                 if (Math.abs(beta) > deadZone) {
-                    yvelocity = -Math.sign(beta) * sensitivity;
+                    yvelocity = Math.sign(beta) * sensitivity;
                 }
 
                 posX += xvelocity;  
