@@ -17,7 +17,7 @@
             position: absolute;
             width: 1000px; 
             height: auto;
-            transition: transform 0.1s linear;
+            transition: transform 1s linear;
         }
         button {
             position: fixed;
@@ -45,14 +45,14 @@
         document.addEventListener("DOMContentLoaded", function () {
             let img = document.getElementById("myImage");
             let button = document.getElementById("enableMotion");
-            let sensitivity = 7;
+            let sensitivity = 5;
             let posX = 0, posY = 0;
             let gamma = 0, beta = 0; 
 
             let imgWidth = img.clientWidth; 
             let imgHeight = img.clientHeight; 
             let minX = -((imgWidth - window.innerWidth) / 2 + 100);  
-            let maxX = (imgWidth - window.innerWidth) / 2 + 100;
+            let maxX = ((imgWidth - window.innerWidth)) / 2 + 100;
             let minY = (imgHeight - window.innerHeight) / 2;  
             let maxY = -(imgHeight - window.innerHeight) / 2;
 
@@ -60,7 +60,7 @@
 
 
             function updateImage() {
-                let deadZone = 5; // Stop movement if inside this range
+                let deadZone = 3; // Stop movement if inside this range
                 let xvelocity = 0, yvelocity = 0;
 
                 if (Math.abs(gamma) < deadZone) {
