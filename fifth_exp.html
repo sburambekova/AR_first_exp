@@ -59,18 +59,18 @@
 
 
             function updateImage() {
-                let deadZone = 5; // Stop movement if inside this range
+                let deadZone = 1; // Stop movement if inside this range
                 let xvelocity = 0, yvelocity = 0;
 
                 if (Math.abs(gamma) > deadZone) {
                     xvelocity = -Math.sign(gamma) * sensitivity;
                 }
                 if (Math.abs(beta) > deadZone) {
-                    yvelocity = Math.sign(beta) * sensitivity;
+                    yvelocity = -Math.sign(beta) * sensitivity;
                 }
 
                 posX += xvelocity;  
-                posY -= yvelocity;  
+                posY += yvelocity;  
 
                 posX = Math.max(minX, Math.min(maxX, posX));
                 posY = Math.max(minY, Math.min(maxY, posY));
@@ -79,61 +79,6 @@
 
                 requestAnimationFrame(updateImage); // Repeat the function
             }
-
-
-            // function moveImage(gamma, beta) {
-            //     let xvelocity = 0, yvelocity = 0;
-            //     let deadZone = 1; // If within ±5 degrees, stop movement
-
-            //     if (Math.abs(gamma) > deadZone) {  
-            //         xvelocity = -Math.sign(gamma) * sensitivity;
-            //     }
-            //     if (Math.abs(beta) > deadZone) {  
-            //         yvelocity = Math.sign(beta) * sensitivity;
-            //     }
-
-            //     if (Math.abs(gamma) > 5) {  // Side tilt (left/right)
-            //         xvelocity = -Math.sign(gamma) * sensitivity;
-            //     }
-            //     if (Math.abs(beta) > 5) {  // Front tilt (up/down)
-            //         yvelocity = Math.sign(beta) * sensitivity;
-            //     }
-            //     if (Math.abs(gamma) == 0 || Math.abs(beta) == 0){
-            //     posX = 0, posY = 0;
-            //     }
-            //     posX -= xvelocity;
-            //     posY -= yvelocity;
-
-            //     posX = Math.max(minX, Math.min(maxX, posX));
-            //     posY = Math.max(minY, Math.min(maxY, posY));
-
-            //     img.style.transform = `translate(${posX}px, ${posY}px)`;
-            // }
-
-        //     function startMotionTracking() {
-        //         if (typeof DeviceMotionEvent.requestPermission === 'function') {
-        //             DeviceMotionEvent.requestPermission().then(permissionState => {
-        //                 if (permissionState === 'granted') {
-        //                     window.addEventListener("deviceorientation", function(event) {
-        //                         moveImage(event.gamma, event.beta);
-        //                     });
-        //                 } else {
-        //                     alert("Motion access denied.");
-        //                 }
-        //             }).catch(console.error);
-        //         } else {
-        //             window.addEventListener("deviceorientation", function(event) {
-        //                 moveImage(event.gamma, event.beta);
-        //             });
-        //         }
-        //     }
-
-        //     button.addEventListener("click", function () {
-        //         console.log("Button clicked, enabling motion...");
-        //         startMotionTracking();
-        //         button.style.display = "none"; // Hide button after enabling
-        //     });
-        // });
 
         function startMotionTracking() {
                 if (typeof DeviceMotionEvent.requestPermission === 'function') {
