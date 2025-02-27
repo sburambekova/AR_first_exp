@@ -25,6 +25,12 @@
             transform: translateX(-50%);
             padding: 10px 20px;
             font-size: 16px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            z-index: 9999; /* Ensure it's above all elements */
         }
     </style>
 </head>
@@ -47,6 +53,8 @@
             let maxX = (imgWidth - window.innerWidth) / 2;
             let minY = -((imgHeight - window.innerHeight) / 2);  
             let maxY = (imgHeight - window.innerHeight) / 2;
+
+            console.log("Button should be visible. Checking:", button);
 
             function moveImage(gamma, beta) {
                 let xvelocity = 0, yvelocity = 0;
@@ -79,7 +87,6 @@
                         }
                     }).catch(console.error);
                 } else {
-                    // For non-iOS devices (Android)
                     window.addEventListener("deviceorientation", function(event) {
                         moveImage(event.gamma, event.beta);
                     });
@@ -87,6 +94,7 @@
             }
 
             button.addEventListener("click", function () {
+                console.log("Button clicked, enabling motion...");
                 startMotionTracking();
                 button.style.display = "none"; // Hide button after enabling
             });
@@ -94,4 +102,3 @@
     </script>
 </body>
 </html>
-
