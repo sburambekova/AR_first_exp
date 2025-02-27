@@ -17,7 +17,7 @@
             position: absolute;
             width: 1500px; 
             height: 20000 px;
-            transition: transform 1s linear;
+            transition: transform 0.1s linear;
         }
         button {
             position: fixed;
@@ -74,7 +74,7 @@
                 posY += yvelocity;  
 
                 posX = Math.max(minX, Math.min(maxX, posX));
-                posY = -Math.max(minY, Math.min(maxY, posY));
+                posY = Math.max(minY, Math.min(maxY, posY));
 
                 img.style.transform = `translate(${posX}px, ${posY}px)`;
 
