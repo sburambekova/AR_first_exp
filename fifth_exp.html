@@ -15,7 +15,7 @@
         }
         img {
             position: absolute;
-            width: 5000px; 
+            width: 2000px; 
             height: auto;
             transition: transform 1s linear;
         }
@@ -67,7 +67,7 @@
                     xvelocity = -Math.sign(gamma) * sensitivity;
                 }
                 if (Math.abs(beta) > deadZone) {
-                    yvelocity = Math.sign(beta) * sensitivity;
+                    yvelocity = -Math.sign(beta) * sensitivity;
                 }
 
                 posX += xvelocity;  
