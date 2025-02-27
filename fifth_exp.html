@@ -53,8 +53,8 @@
             let imgHeight = img.clientHeight; 
             let minX = -((imgWidth - window.innerWidth) / 2 + 100);  
             let maxX = ((imgWidth - window.innerWidth)) / 2 + 100;
-            let minY = -(imgHeight - window.innerHeight) / 2 + 100;  
-            let maxY = (imgHeight - window.innerHeight) / 2 - 100;
+            let minY = -(imgHeight - window.innerHeight) / 2;  
+            let maxY = (imgHeight - window.innerHeight) / 2;
 
 
 
@@ -67,7 +67,7 @@
                     xvelocity = -Math.sign(gamma) * sensitivity;
                 }
                 if (Math.abs(beta) > deadZone) {
-                    yvelocity = Math.sign(beta) * sensitivity;
+                    yvelocity = -Math.sign(beta) * sensitivity;
                 }
 
                 posX += xvelocity;  
