@@ -17,7 +17,7 @@
             position: absolute;
             width: 1000px; 
             height: auto;
-            transition: transform 0.1s linear;
+            transition: transform 7s linear;
         }
         button {
             position: fixed;
@@ -31,7 +31,7 @@
             border: none;
             border-radius: 5px;
             cursor: pointer;
-            z-index: 9999; /* Ensure it's above all elements */
+            z-index: 9999; 
         }
     </style>
 </head>
@@ -45,7 +45,7 @@
         document.addEventListener("DOMContentLoaded", function () {
             let img = document.getElementById("myImage");
             let button = document.getElementById("enableMotion");
-            let sensitivity = 5;
+            let sensitivity = 3;
             let posX = 0, posY = 0;
 
             let imgWidth = img.clientWidth; 
@@ -60,10 +60,10 @@
             function moveImage(gamma, beta) {
                 let xvelocity = 0, yvelocity = 0;
 
-                if (Math.abs(gamma) > 10) {
+                if (Math.abs(gamma) > 0) {
                     xvelocity = Math.sign(gamma) * sensitivity;
                 }
-                if (Math.abs(beta) > 10) {
+                if (Math.abs(beta) > 0) {
                     yvelocity = Math.sign(beta) * sensitivity;
                 }
 
