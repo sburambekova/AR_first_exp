@@ -60,7 +60,7 @@
 
 
             function updateImage() {
-                let deadZone = 30; // Stop movement if inside this range
+                let deadZone = 30;
                 let xvelocity = 0, yvelocity = 0;
 
                 if (Math.abs(gamma) > deadZone) {
@@ -78,7 +78,7 @@
 
                 img.style.transform = `translate(${posX}px, ${posY}px)`;
 
-                requestAnimationFrame(updateImage); // Repeat the function
+                requestAnimationFrame(updateImage); 
             }
 
         function startMotionTracking() {
@@ -89,7 +89,7 @@
                                 gamma = event.gamma;  
                                 beta = event.beta;
                             });
-                            updateImage();  // Start the loop
+                            updateImage();  
                         } else {
                             alert("Motion access denied.");
                         }
@@ -99,13 +99,13 @@
                         gamma = event.gamma;
                         beta = event.beta;
                     });
-                    updateImage();  // Start the loop
+                    updateImage();  
                 }
             }
 
             button.addEventListener("click", function () {
                 startMotionTracking();
-                button.style.display = "none"; // Hide button after enabling
+                button.style.display = "none"; 
             });
         });
     </script>
