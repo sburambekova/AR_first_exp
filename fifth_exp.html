@@ -77,7 +77,7 @@
                 posY = Math.max(minY, Math.min(maxY, posY));
 
                 img.style.transform = `translate(${posX}px, ${posY}px)`;
-
+                console.log("Now: ", Date.now())
                 requestAnimationFrame(updateImage); 
             }
 
