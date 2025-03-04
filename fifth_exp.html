@@ -60,7 +60,7 @@
 
 
             function updateImage() {
-                let deadZone = 30;
+                let deadZone = 20;
                 let xvelocity = 0, yvelocity = 0;
 
                 if (Math.abs(gamma) > deadZone) {
@@ -74,7 +74,7 @@
                 posY -= yvelocity;  
 
                 posX = Math.max(minX, Math.min(maxX, posX));
-                posY = Math.max(minY, Math.min(maxY, posY));
+                posY = -Math.max(minY, Math.min(maxY, posY));
 
                 img.style.transform = `translate(${posX}px, ${posY}px)`;
 
