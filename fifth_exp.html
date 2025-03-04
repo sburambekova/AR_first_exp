@@ -36,7 +36,7 @@
     </style>
 </head>
 <body>
-
+    <p id="log"></p>
     <img src="https://sburambekova.github.io/AR_first_exp/assets/datasheet.png"
          id="myImage" alt="datasheet">
     <button id="enableMotion">Enable Motion</button>
@@ -56,8 +56,7 @@
             let minY = (imgHeight - window.innerHeight) / 2;  
             let maxY = -(imgHeight - window.innerHeight) / 2;
 
-
-
+            let lastTimestamp = Date.now();
 
             function updateImage() {
                 let deadZone = 10;
@@ -77,8 +76,13 @@
                 posY = Math.max(minY, Math.min(maxY, posY));
 
                 img.style.transform = `translate(${posX}px, ${posY}px)`;
-                console.log("Now: ", Date.now())
                 requestAnimationFrame(updateImage); 
+
+                const now = Date.now();
+                const timeDelta = now - lastTimestamp;
+                document.getElementById("log").innerText = timeDelta.toString();
+                lastTimestamp = now;
+
             }
 
         function startMotionTracking() {
