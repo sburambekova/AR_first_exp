@@ -166,6 +166,8 @@
     // Image position (current and target)
     let currentX = 0, currentY = 0;
     let targetX = 0, targetY = 0;
+    let scaleTarget = 1;
+    let currentScale = 1;
     // Flag to track if the animation loop is running
     let orientationActive = false;
 
@@ -195,42 +197,39 @@
     }
 
     // Handle deviceorientation events (update target positions based on tilt)
-    function handleOrientation(event) {
-      if (!orientationActive) {
-        // Start animation loop on first event
-        orientationActive = true;
-        requestAnimationFrame(updatePosition);
-      }
-      const { alpha, beta, gamma } = event;
-      // Log the raw orientation values for debugging
-      console.log('deviceorientation event:', { alpha, beta, gamma });
-      // Define a maximum tilt angle to map (to avoid using extreme values)
-      const maxTilt = 45;  // degrees
-      // Clamp beta and gamma to the range [-maxTilt, maxTilt]
-      const tiltX = Math.max(-maxTilt, Math.min(maxTilt, gamma || 0));
-      const tiltY = Math.max(-maxTilt, Math.min(maxTilt, beta || 0));
-      // Map the tilt to target X/Y positions within bounds.
-      // For horizontal (X): positive gamma (tilt right) moves image toward minX (left).
-      // For vertical (Y): positive beta (tilt forward) moves image toward maxY (down).
-      targetX = (minX + maxX) / 2 + (minX - maxX) * (tiltX / (2 * maxTilt));
-      targetY = (minY + maxY) / 2 + (maxY - minY) * (tiltY / (2 * maxTilt));
-      // Clamp target positions to bounds just to be safe
-      targetX = Math.max(minX, Math.min(maxX, targetX));
-      targetY = Math.max(minY, Math.min(maxY, targetY));
-    }
+function handleOrientation(event) {
+  const { alpha, beta, gamma } = event;
+  console.log('deviceorientation event:', { alpha, beta, gamma });
+  
+  // Existing panning logic:
+  const maxTilt = 45;
+  const tiltX = Math.max(-maxTilt, Math.min(maxTilt, gamma || 0));
+  const tiltY = Math.max(-maxTilt, Math.min(maxTilt, beta || 0));
+  targetX = (minX + maxX) / 2 + (minX - maxX) * (tiltX / (2 * maxTilt));
+  targetY = (minY + maxY) / 2 + (maxY - minY) * (tiltY / (2 * maxTilt));
+  targetX = Math.max(minX, Math.min(maxX, targetX));
+  targetY = Math.max(minY, Math.min(maxY, targetY));
+
+  // New zoom logic: map alpha (0-360) to a scale factor between 1 and 2
+  let rawAlpha = alpha || 0;
+  scaleTarget = 1 + (rawAlpha / 360);
+}
+
 
     // Animation loop: smoothly move the image toward target position
-    function updatePosition() {
-      // Simple easing: adjust current position a fraction of the difference toward target
-      currentX += (targetX - currentX) * 0.1;
-      currentY += (targetY - currentY) * 0.1;
-      // Apply the new position using CSS transform
-      img.style.transform = `translate(${currentX}px, ${currentY}px)`;
-      // Continue the loop if orientation is active
-      if (orientationActive) {
-        requestAnimationFrame(updatePosition);
-      }
-    }
+function updatePosition() {
+  // Smoothly interpolate the position
+  currentX += (targetX - currentX) * 0.1;
+  currentY += (targetY - currentY) * 0.1;
+  // Smoothly interpolate the scale for zoom
+  currentScale += (scaleTarget - currentScale) * 0.1;
+  
+  // Combine translation and scale in the transform
+  img.style.transform = `translate(${currentX}px, ${currentY}px) scale(${currentScale})`;
+  
+  requestAnimationFrame(updatePosition);
+}
+
 
     // Start orientation tracking (with permission handling for iOS)
     function startOrientationTracking() {
