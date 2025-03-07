@@ -123,153 +123,157 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Move Image with Phone Tilt - Experimental Setup</title>
-    <style>
-        body {
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            background-color: #f0f0f0;
-        }
-        img {
-            position: absolute;
-            width: 1500px;
-            height: 2000px;
-            transition: transform 0.1s linear;
-        }
-        .controls, .log {
-            position: fixed;
-            bottom: 10px;
-            background-color: white;
-            padding: 10px;
-            border-radius: 5px;
-            z-index: 9999;
-        }
-        .controls {
-            left: 10px;
-        }
-        .log {
-            right: 10px;
-            width: 200px;
-        }
-        label, select, input {
-            margin: 5px;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Device Tilt Image Movement</title>
+  <style>
+    /* Container and image styling */
+    #container {
+      position: relative;
+      overflow: hidden;
+      width: 100%;
+      height: 100vh; /* full viewport height container */
+    }
+    #tiltImage {
+      position: absolute;
+      /* The image will be positioned via script (transform: translate) */
+    }
+    #startButton {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      padding: 1em 2em;
+      font-size: 1.2em;
+      display: none; /* shown only if needed (iOS) */
+    }
+  </style>
 </head>
 <body>
-    <img src="https://sburambekova.github.io/AR_first_exp/assets/datasheet.png"
-         id="myImage" alt="datasheet" style="display: none;">
-    <button id="enableMotion">Enable Motion</button>
+  <div id="container">
+    <img id="tiltImage" src="your-image.jpg" alt="Tilting image" />
+  </div>
+  <button id="startButton">Enable Motion</button>
 
-    <div class="controls">
-        <label for="gammaSelect">Gamma Dead Zone:</label>
-        <select id="gammaSelect">
-            <option value="5">[-5, 5]</option>
-            <option value="10" selected>[-10, 10]</option>
-            <option value="15">[-15, 15]</option>
-            <option value="30">[-30, 30]</option>
-        </select><br>
+  <script>
+  (() => {
+    const img = document.getElementById('tiltImage');
+    const container = document.getElementById('container');
+    const startBtn = document.getElementById('startButton');
+    // Variables for dimensions
+    let imgWidth, imgHeight, containerWidth, containerHeight;
+    // Movement boundaries
+    let minX, maxX, minY, maxY;
+    // Image position (current and target)
+    let currentX = 0, currentY = 0;
+    let targetX = 0, targetY = 0;
+    // Flag to track if the animation loop is running
+    let orientationActive = false;
 
-        <label for="betaSelect">Beta Dead Zone:</label>
-        <select id="betaSelect">
-            <option value="5">[-5, 5]</option>
-            <option value="10" selected>[-10, 10]</option>
-            <option value="15">[-15, 15]</option>
-            <option value="30">[-30, 30]</option>
-        </select><br>
+    // Initialize dimensions and boundaries after image is loaded/displayed
+    function initDimensions() {
+      containerWidth = container.clientWidth;
+      containerHeight = container.clientHeight;
+      imgWidth = img.clientWidth;
+      imgHeight = img.clientHeight;
+      if (imgWidth === 0 || imgHeight === 0) {
+        // If image is not rendered yet, use intrinsic size as fallback
+        imgWidth = img.naturalWidth;
+        imgHeight = img.naturalHeight;
+      }
+      // Calculate boundaries for movement
+      minX = Math.min(0, containerWidth - imgWidth);
+      maxX = Math.max(0, containerWidth - imgWidth);
+      minY = Math.min(0, containerHeight - imgHeight);
+      maxY = Math.max(0, containerHeight - imgHeight);
+      // Optionally, start with image centered within the bounds
+      currentX = targetX = (minX + maxX) / 2;
+      currentY = targetY = (minY + maxY) / 2;
+      // Apply initial position
+      img.style.transform = `translate(${currentX}px, ${currentY}px)`;
+      console.log('Initialized dimensions:', { imgWidth, imgHeight, containerWidth, containerHeight });
+      console.log('Movement bounds:', { minX, maxX, minY, maxY });
+    }
 
-        <label for="sensitivitySlider">Sensitivity (Speed):</label>
-        <input type="range" id="sensitivitySlider" min="1" max="15" value="7">
-        <span id="sensitivityValue">7</span>
-    </div>
+    // Handle deviceorientation events (update target positions based on tilt)
+    function handleOrientation(event) {
+      if (!orientationActive) {
+        // Start animation loop on first event
+        orientationActive = true;
+        requestAnimationFrame(updatePosition);
+      }
+      const { alpha, beta, gamma } = event;
+      // Log the raw orientation values for debugging
+      console.log('deviceorientation event:', { alpha, beta, gamma });
+      // Define a maximum tilt angle to map (to avoid using extreme values)
+      const maxTilt = 45;  // degrees
+      // Clamp beta and gamma to the range [-maxTilt, maxTilt]
+      const tiltX = Math.max(-maxTilt, Math.min(maxTilt, gamma || 0));
+      const tiltY = Math.max(-maxTilt, Math.min(maxTilt, beta || 0));
+      // Map the tilt to target X/Y positions within bounds.
+      // For horizontal (X): positive gamma (tilt right) moves image toward minX (left).
+      // For vertical (Y): positive beta (tilt forward) moves image toward maxY (down).
+      targetX = (minX + maxX) / 2 + (minX - maxX) * (tiltX / (2 * maxTilt));
+      targetY = (minY + maxY) / 2 + (maxY - minY) * (tiltY / (2 * maxTilt));
+      // Clamp target positions to bounds just to be safe
+      targetX = Math.max(minX, Math.min(maxX, targetX));
+      targetY = Math.max(minY, Math.min(maxY, targetY));
+    }
 
-    <div class="log" id="log">Awaiting motion data...</div>
+    // Animation loop: smoothly move the image toward target position
+    function updatePosition() {
+      // Simple easing: adjust current position a fraction of the difference toward target
+      currentX += (targetX - currentX) * 0.1;
+      currentY += (targetY - currentY) * 0.1;
+      // Apply the new position using CSS transform
+      img.style.transform = `translate(${currentX}px, ${currentY}px)`;
+      // Continue the loop if orientation is active
+      if (orientationActive) {
+        requestAnimationFrame(updatePosition);
+      }
+    }
 
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            let img = document.getElementById("myImage");
-            let button = document.getElementById("enableMotion");
-            let posX = 0, posY = 0;
-            let gamma = 0, beta = 0;
-    
-            let imgWidth = img.clientWidth; 
-            let imgHeight = img.clientHeight; 
-    
-            // Correct boundaries for both X and Y
-            let minX = -(imgWidth - window.innerWidth) / 2;  
-            let maxX = (imgWidth - window.innerWidth) / 2;
-            let minY = -(imgHeight - window.innerHeight) / 2;  
-            let maxY = (imgHeight - window.innerHeight) / 2;
-    
-            let lastTimestamp = Date.now();
-    
-            // Default settings for dead zones and sensitivity
-            let gammaDeadZone = 10;
-            let betaDeadZone = 10;
-            let sensitivity = 7;
-    
-            // Set initial position to the center of the screen
-            posX = (window.innerWidth - imgWidth) / 2;
-            posY = (window.innerHeight - imgHeight) / 2;
-    
-            function updateImage() {
-                let xvelocity = 0, yvelocity = 0;
-    
-                // Apply dead zones and calculate velocity
-                if (Math.abs(gamma) > gammaDeadZone) {
-                    xvelocity = -Math.sign(gamma) * sensitivity;
-                }
-                if (Math.abs(beta) > betaDeadZone) {
-                    yvelocity = -Math.sign(beta) * sensitivity; 
-                }
-    
-                posX += xvelocity;  
-                posY += yvelocity;  
-    
-                // Clamp position within the boundaries
-                posX = Math.max(minX, Math.min(maxX, posX));
-                posY = Math.max(minY, Math.min(maxY, posY));
-    
-                img.style.transform = `translate(${posX}px, ${posY}px)`;
-    
-                requestAnimationFrame(updateImage); 
-            }
-    
-            function startMotionTracking() {
-                if (typeof DeviceMotionEvent.requestPermission === 'function') {
-                    DeviceMotionEvent.requestPermission().then(permissionState => {
-                        if (permissionState === 'granted') {
-                            window.addEventListener("deviceorientation", function(event) {
-                                gamma = event.gamma;  
-                                beta = event.beta;
-                            });
-                            img.style.display = 'block';  // Ensure the image is visible
-                            updateImage();  
-                        } else {
-                            alert("Motion access denied.");
-                        }
-                    }).catch(console.error);
-                } else {
-                    window.addEventListener("deviceorientation", function(event) {
-                        gamma = event.gamma;
-                        beta = event.beta;
-                    });
-                    img.style.display = 'block';
-                    updateImage();  
-                }
-            }
-    
-            button.addEventListener("click", function () {
-                startMotionTracking();
-                button.style.display = "none"; 
-            });
+    // Start orientation tracking (with permission handling for iOS)
+    function startOrientationTracking() {
+      initDimensions();  // set up sizes and bounds
+      // If iOS 13+ device, request permission first
+      if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+        DeviceOrientationEvent.requestPermission().then(response => {
+          if (response === 'granted') {
+            console.log('Motion permission granted');
+            window.addEventListener('deviceorientation', handleOrientation);
+          } else {
+            console.warn('Motion permission denied by user');
+          }
+        }).catch(err => {
+          console.error('Error requesting deviceorientation permission:', err);
         });
-    </script>
-    
+      } else {
+        // Other platforms (Android, etc.) – permission not required
+        window.addEventListener('deviceorientation', handleOrientation);
+      }
+    }
+
+    // Set up event to initiate tracking depending on platform
+    if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+      // On iOS: show the start button and wait for user tap to request permission
+      startBtn.style.display = 'block';
+      startBtn.addEventListener('click', () => {
+        startBtn.style.display = 'none';
+        // Ensure image is loaded before starting
+        if (!img.complete) {
+          img.onload = startOrientationTracking;
+        } else {
+          startOrientationTracking();
+        }
+      });
+    } else {
+      // On Android and other devices: start tracking once the page (image) is fully loaded
+      window.addEventListener('load', startOrientationTracking);
+    }
+
+    // Recalculate dimensions if the viewport size changes (e.g. device rotation)
+    window.addEventListener('resize', initDimensions);
+  })();
+  </script>
 </body>
 </html>
