@@ -190,71 +190,68 @@
       // Optionally, start with image centered within the bounds
       currentX = targetX = (minX + maxX) / 2;
       currentY = targetY = (minY + maxY) / 2;
-      // Apply initial position
-      img.style.transform = translate(${currentX}px, ${currentY}px);
+      // Apply initial position using proper template literal
+      img.style.transform = `translate(${currentX}px, ${currentY}px)`;
       console.log('Initialized dimensions:', { imgWidth, imgHeight, containerWidth, containerHeight });
       console.log('Movement bounds:', { minX, maxX, minY, maxY });
     }
 
     // Handle deviceorientation events (update target positions based on tilt)
-function handleOrientation(event) {
-  const { alpha, beta, gamma } = event;
-  console.log('deviceorientation event:', { alpha, beta, gamma });
-  
-  // Existing panning logic:
-  const maxTilt = 45;
-  const tiltX = Math.max(-maxTilt, Math.min(maxTilt, gamma || 0));
-  const tiltY = Math.max(-maxTilt, Math.min(maxTilt, beta || 0));
-  targetX = (minX + maxX) / 2 + (minX - maxX) * (tiltX / (2 * maxTilt));
-  targetY = (minY + maxY) / 2 + (maxY - minY) * (tiltY / (2 * maxTilt));
-  targetX = Math.max(minX, Math.min(maxX, targetX));
-  targetY = Math.max(minY, Math.min(maxY, targetY));
+    function handleOrientation(event) {
+      const { alpha, beta, gamma } = event;
+      console.log('deviceorientation event:', { alpha, beta, gamma });
+      
+      // Existing panning logic:
+      const maxTilt = 45;
+      const tiltX = Math.max(-maxTilt, Math.min(maxTilt, gamma || 0));
+      const tiltY = Math.max(-maxTilt, Math.min(maxTilt, beta || 0));
+      targetX = (minX + maxX) / 2 + (minX - maxX) * (tiltX / (2 * maxTilt));
+      targetY = (minY + maxY) / 2 + (maxY - minY) * (tiltY / (2 * maxTilt));
+      targetX = Math.max(minX, Math.min(maxX, targetX));
+      targetY = Math.max(minY, Math.min(maxY, targetY));
 
-  // New zoom logic: map alpha (0-360) to a scale factor between 1 and 2
-  let rawAlpha = alpha || 0;
-  scaleTarget = 1 + (rawAlpha / 360);
-}
-
+      // New zoom logic: map alpha (0-360) to a scale factor between 1 and 2
+      let rawAlpha = alpha || 0;
+      scaleTarget = 1 + (rawAlpha / 360);
+    }
 
     // Animation loop: smoothly move the image toward target position
-function updatePosition() {
-  // Smoothly interpolate the position
-  currentX += (targetX - currentX) * 0.1;
-  currentY += (targetY - currentY) * 0.1;
-  // Smoothly interpolate the scale for zoom
-  currentScale += (scaleTarget - currentScale) * 0.1;
-  
-  // Combine translation and scale in the transform
-  img.style.transform = translate(${currentX}px, ${currentY}px) scale(${currentScale});
-  
-  requestAnimationFrame(updatePosition);
-}
+    function updatePosition() {
+      // Smoothly interpolate the position
+      currentX += (targetX - currentX) * 0.1;
+      currentY += (targetY - currentY) * 0.1;
+      // Smoothly interpolate the scale for zoom
+      currentScale += (scaleTarget - currentScale) * 0.1;
+      
+      // Combine translation and scale in the transform (using backticks)
+      img.style.transform = `translate(${currentX}px, ${currentY}px) scale(${currentScale})`;
+      
+      requestAnimationFrame(updatePosition);
+    }
 
-
-function startOrientationTracking() {
-  initDimensions();  // set up sizes and bounds
-  // If iOS 13+ device, request permission first
-  if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
-    DeviceOrientationEvent.requestPermission().then(response => {
-      if (response === 'granted') {
-        console.log('Motion permission granted');
+    function startOrientationTracking() {
+      initDimensions();  // set up sizes and bounds
+      // If iOS 13+ device, request permission first
+      if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+        DeviceOrientationEvent.requestPermission().then(response => {
+          if (response === 'granted') {
+            console.log('Motion permission granted');
+            window.addEventListener('deviceorientation', handleOrientation);
+            // Start the animation loop
+            requestAnimationFrame(updatePosition);
+          } else {
+            console.warn('Motion permission denied by user');
+          }
+        }).catch(err => {
+          console.error('Error requesting deviceorientation permission:', err);
+        });
+      } else {
+        // Other platforms (Android, etc.) – permission not required
         window.addEventListener('deviceorientation', handleOrientation);
         // Start the animation loop
         requestAnimationFrame(updatePosition);
-      } else {
-        console.warn('Motion permission denied by user');
       }
-    }).catch(err => {
-      console.error('Error requesting deviceorientation permission:', err);
-    });
-  } else {
-    // Other platforms (Android, etc.) – permission not required
-    window.addEventListener('deviceorientation', handleOrientation);
-    // Start the animation loop
-    requestAnimationFrame(updatePosition);
-  }
-}
-
+    }
 
     // Set up event to initiate tracking depending on platform
     if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
