@@ -196,75 +196,50 @@
             let button = document.getElementById("enableMotion");
             let posX = 0, posY = 0;
             let gamma = 0, beta = 0;
-
+    
             let imgWidth = img.clientWidth; 
             let imgHeight = img.clientHeight; 
-            let minX = -((imgWidth - window.innerWidth) / 2);  
-            let maxX = ((imgWidth - window.innerWidth)) / 2;
+    
+            // Correct boundaries for both X and Y
+            let minX = -(imgWidth - window.innerWidth) / 2;  
+            let maxX = (imgWidth - window.innerWidth) / 2;
             let minY = -(imgHeight - window.innerHeight) / 2;  
             let maxY = (imgHeight - window.innerHeight) / 2;
-
+    
             let lastTimestamp = Date.now();
-
-            // Get settings from controls
-            let gammaDeadZone = parseInt(document.getElementById("gammaSelect").value);
-            let betaDeadZone = parseInt(document.getElementById("betaSelect").value);
-            let sensitivity = parseInt(document.getElementById("sensitivitySlider").value);
-
-            // Update settings when controls change
-            document.getElementById("gammaSelect").addEventListener("change", function() {
-                gammaDeadZone = parseInt(this.value);
-            });
-            document.getElementById("betaSelect").addEventListener("change", function() {
-                betaDeadZone = parseInt(this.value);
-            });
-            document.getElementById("sensitivitySlider").addEventListener("input", function() {
-                sensitivity = parseInt(this.value);
-                document.getElementById("sensitivityValue").innerText = sensitivity;
-            });
-
+    
+            // Default settings for dead zones and sensitivity
+            let gammaDeadZone = 10;
+            let betaDeadZone = 10;
+            let sensitivity = 7;
+    
+            // Set initial position to the center of the screen
+            posX = (window.innerWidth - imgWidth) / 2;
+            posY = (window.innerHeight - imgHeight) / 2;
+    
             function updateImage() {
                 let xvelocity = 0, yvelocity = 0;
-
-                // Apply dead zones
+    
+                // Apply dead zones and calculate velocity
                 if (Math.abs(gamma) > gammaDeadZone) {
                     xvelocity = -Math.sign(gamma) * sensitivity;
                 }
                 if (Math.abs(beta) > betaDeadZone) {
-                    yvelocity = Math.sign(beta) * sensitivity;
+                    yvelocity = -Math.sign(beta) * sensitivity; 
                 }
-
+    
                 posX += xvelocity;  
                 posY += yvelocity;  
-
-                // Clamp position to image boundaries
+    
+                // Clamp position within the boundaries
                 posX = Math.max(minX, Math.min(maxX, posX));
                 posY = Math.max(minY, Math.min(maxY, posY));
-
+    
                 img.style.transform = `translate(${posX}px, ${posY}px)`;
-
-                // Calculate and display velocity and timing
-                const now = Date.now();
-                const timeDelta = now - lastTimestamp; // ms
-                const xVelocityPerSec = (xvelocity / timeDelta) * 1000;
-                const yVelocityPerSec = (yvelocity / timeDelta) * 1000;
-
-                document.getElementById("log").innerHTML = `
-                    <strong>Time Delta:</strong> ${timeDelta} ms<br>
-                    <strong>Gamma:</strong> ${gamma.toFixed(2)}<br>
-                    <strong>Beta:</strong> ${beta.toFixed(2)}<br>
-                    <strong>X Velocity:</strong> ${xVelocityPerSec.toFixed(2)} px/s<br>
-                    <strong>Y Velocity:</strong> ${yVelocityPerSec.toFixed(2)} px/s<br>
-                    <strong>Settings:</strong><br>
-                    Gamma Dead Zone: ${gammaDeadZone}<br>
-                    Beta Dead Zone: ${betaDeadZone}<br>
-                    Sensitivity: ${sensitivity}
-                `;
-
-                lastTimestamp = now;
-                requestAnimationFrame(updateImage);
+    
+                requestAnimationFrame(updateImage); 
             }
-
+    
             function startMotionTracking() {
                 if (typeof DeviceMotionEvent.requestPermission === 'function') {
                     DeviceMotionEvent.requestPermission().then(permissionState => {
@@ -273,7 +248,7 @@
                                 gamma = event.gamma;  
                                 beta = event.beta;
                             });
-                            img.style.display = 'block';
+                            img.style.display = 'block';  // Ensure the image is visible
                             updateImage();  
                         } else {
                             alert("Motion access denied.");
@@ -288,12 +263,13 @@
                     updateImage();  
                 }
             }
-
+    
             button.addEventListener("click", function () {
                 startMotionTracking();
                 button.style.display = "none"; 
             });
         });
     </script>
+    
 </body>
 </html>
