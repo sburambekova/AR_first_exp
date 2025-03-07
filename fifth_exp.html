@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -59,7 +59,8 @@
             let lastTimestamp = Date.now();
 
             function updateImage() {
-                let deadZone = 10;
+               // Dropdown for selecting gamma dead zone
+                let gammaDeadZone = 10; // Default value
                 let xvelocity = 0, yvelocity = 0;
 
                 if (Math.abs(gamma) > deadZone) {
@@ -103,6 +104,187 @@
                         gamma = event.gamma;
                         beta = event.beta;
                     });
+                    updateImage();  
+                }
+            }
+
+            button.addEventListener("click", function () {
+                startMotionTracking();
+                button.style.display = "none"; 
+            });
+        });
+    </script>
+</body>
+</html> -->
+
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Move Image with Phone Tilt - Experimental Setup</title>
+    <style>
+        body {
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background-color: #f0f0f0;
+        }
+        img {
+            position: absolute;
+            width: 1500px;
+            height: 2000px;
+            transition: transform 0.1s linear;
+        }
+        .controls, .log {
+            position: fixed;
+            bottom: 10px;
+            background-color: white;
+            padding: 10px;
+            border-radius: 5px;
+            z-index: 9999;
+        }
+        .controls {
+            left: 10px;
+        }
+        .log {
+            right: 10px;
+            width: 200px;
+        }
+        label, select, input {
+            margin: 5px;
+        }
+    </style>
+</head>
+<body>
+    <img src="https://sburambekova.github.io/AR_first_exp/assets/datasheet.png"
+         id="myImage" alt="datasheet" style="display: none;">
+    <button id="enableMotion">Enable Motion</button>
+
+    <div class="controls">
+        <label for="gammaSelect">Gamma Dead Zone:</label>
+        <select id="gammaSelect">
+            <option value="5">[-5, 5]</option>
+            <option value="10" selected>[-10, 10]</option>
+            <option value="15">[-15, 15]</option>
+            <option value="30">[-30, 30]</option>
+        </select><br>
+
+        <label for="betaSelect">Beta Dead Zone:</label>
+        <select id="betaSelect">
+            <option value="5">[-5, 5]</option>
+            <option value="10" selected>[-10, 10]</option>
+            <option value="15">[-15, 15]</option>
+            <option value="30">[-30, 30]</option>
+        </select><br>
+
+        <label for="sensitivitySlider">Sensitivity (Speed):</label>
+        <input type="range" id="sensitivitySlider" min="1" max="15" value="7">
+        <span id="sensitivityValue">7</span>
+    </div>
+
+    <div class="log" id="log">Awaiting motion data...</div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            let img = document.getElementById("myImage");
+            let button = document.getElementById("enableMotion");
+            let posX = 0, posY = 0;
+            let gamma = 0, beta = 0;
+
+            let imgWidth = img.clientWidth; 
+            let imgHeight = img.clientHeight; 
+            let minX = -((imgWidth - window.innerWidth) / 2);  
+            let maxX = ((imgWidth - window.innerWidth)) / 2;
+            let minY = -(imgHeight - window.innerHeight) / 2;  
+            let maxY = (imgHeight - window.innerHeight) / 2;
+
+            let lastTimestamp = Date.now();
+
+            // Get settings from controls
+            let gammaDeadZone = parseInt(document.getElementById("gammaSelect").value);
+            let betaDeadZone = parseInt(document.getElementById("betaSelect").value);
+            let sensitivity = parseInt(document.getElementById("sensitivitySlider").value);
+
+            // Update settings when controls change
+            document.getElementById("gammaSelect").addEventListener("change", function() {
+                gammaDeadZone = parseInt(this.value);
+            });
+            document.getElementById("betaSelect").addEventListener("change", function() {
+                betaDeadZone = parseInt(this.value);
+            });
+            document.getElementById("sensitivitySlider").addEventListener("input", function() {
+                sensitivity = parseInt(this.value);
+                document.getElementById("sensitivityValue").innerText = sensitivity;
+            });
+
+            function updateImage() {
+                let xvelocity = 0, yvelocity = 0;
+
+                // Apply dead zones
+                if (Math.abs(gamma) > gammaDeadZone) {
+                    xvelocity = -Math.sign(gamma) * sensitivity;
+                }
+                if (Math.abs(beta) > betaDeadZone) {
+                    yvelocity = Math.sign(beta) * sensitivity;
+                }
+
+                posX += xvelocity;  
+                posY += yvelocity;  
+
+                // Clamp position to image boundaries
+                posX = Math.max(minX, Math.min(maxX, posX));
+                posY = Math.max(minY, Math.min(maxY, posY));
+
+                img.style.transform = `translate(${posX}px, ${posY}px)`;
+
+                // Calculate and display velocity and timing
+                const now = Date.now();
+                const timeDelta = now - lastTimestamp; // ms
+                const xVelocityPerSec = (xvelocity / timeDelta) * 1000;
+                const yVelocityPerSec = (yvelocity / timeDelta) * 1000;
+
+                document.getElementById("log").innerHTML = `
+                    <strong>Time Delta:</strong> ${timeDelta} ms<br>
+                    <strong>Gamma:</strong> ${gamma.toFixed(2)}<br>
+                    <strong>Beta:</strong> ${beta.toFixed(2)}<br>
+                    <strong>X Velocity:</strong> ${xVelocityPerSec.toFixed(2)} px/s<br>
+                    <strong>Y Velocity:</strong> ${yVelocityPerSec.toFixed(2)} px/s<br>
+                    <strong>Settings:</strong><br>
+                    Gamma Dead Zone: ${gammaDeadZone}<br>
+                    Beta Dead Zone: ${betaDeadZone}<br>
+                    Sensitivity: ${sensitivity}
+                `;
+
+                lastTimestamp = now;
+                requestAnimationFrame(updateImage);
+            }
+
+            function startMotionTracking() {
+                if (typeof DeviceMotionEvent.requestPermission === 'function') {
+                    DeviceMotionEvent.requestPermission().then(permissionState => {
+                        if (permissionState === 'granted') {
+                            window.addEventListener("deviceorientation", function(event) {
+                                gamma = event.gamma;  
+                                beta = event.beta;
+                            });
+                            img.style.display = 'block';
+                            updateImage();  
+                        } else {
+                            alert("Motion access denied.");
+                        }
+                    }).catch(console.error);
+                } else {
+                    window.addEventListener("deviceorientation", function(event) {
+                        gamma = event.gamma;
+                        beta = event.beta;
+                    });
+                    img.style.display = 'block';
                     updateImage();  
                 }
             }
