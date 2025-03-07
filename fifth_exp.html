@@ -125,18 +125,17 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Device Tilt Image Movement</title>
+  <title>Device Tilt & Zoom Image Movement</title>
   <style>
     /* Container and image styling */
     #container {
       position: relative;
       overflow: hidden;
-      width: 1000vh;
-      height: 1000vh; /* full viewport height container */
+      width: 100%;
+      height: 100vh;
     }
     #tiltImage {
       position: absolute;
-      /* The image will be positioned via script (transform: translate) */
     }
     #startButton {
       position: absolute;
@@ -144,7 +143,7 @@
       transform: translate(-50%, -50%);
       padding: 1em 2em;
       font-size: 1.2em;
-      display: none; /* shown only if needed (iOS) */
+      display: none;
     }
   </style>
 </head>
@@ -155,128 +154,132 @@
   <button id="startButton">Enable Motion</button>
 
   <script>
-  (() => {
-    const img = document.getElementById('tiltImage');
-    const container = document.getElementById('container');
-    const startBtn = document.getElementById('startButton');
-    // Variables for dimensions
-    let imgWidth, imgHeight, containerWidth, containerHeight;
-    // Movement boundaries
-    let minX, maxX, minY, maxY;
-    // Image position (current and target)
-    let currentX = 0, currentY = 0;
-    let targetX = 0, targetY = 0;
-    let scaleTarget = 1;
-    let currentScale = 1;
-    // Flag to track if the animation loop is running
-    let orientationActive = false;
+    (() => {
+      const img = document.getElementById('tiltImage');
+      const container = document.getElementById('container');
+      const startBtn = document.getElementById('startButton');
+      // Variables for dimensions
+      let imgWidth, imgHeight, containerWidth, containerHeight;
+      // Movement boundaries
+      let minX, maxX, minY, maxY;
+      // Image position (current and target)
+      let currentX = 0, currentY = 0;
+      let targetX = 0, targetY = 0;
+      // Variables for zoom control
+      let scaleTarget = 1;
+      let currentScale = 1;
+      // Variable to track zoom factor computed via devicemotion
+      let zoomFactor = 1;
+      // Sensitivity for zoom (adjust as needed)
+      const zoomSensitivity = 0.05;
+      // Flag to track if the animation loop is running
+      let orientationActive = false;
 
-    // Initialize dimensions and boundaries after image is loaded/displayed
-    function initDimensions() {
-      containerWidth = container.clientWidth;
-      containerHeight = container.clientHeight;
-      imgWidth = img.clientWidth;
-      imgHeight = img.clientHeight;
-      if (imgWidth === 0 || imgHeight === 0) {
-        // If image is not rendered yet, use intrinsic size as fallback
-        imgWidth = img.naturalWidth;
-        imgHeight = img.naturalHeight;
-      }
-      // Calculate boundaries for movement
-      minX = Math.min(0, containerWidth - imgWidth);
-      maxX = Math.max(0, containerWidth - imgWidth);
-      minY = Math.min(0, containerHeight - imgHeight);
-      maxY = Math.max(0, containerHeight - imgHeight);
-      // Optionally, start with image centered within the bounds
-      currentX = targetX = (minX + maxX) / 2;
-      currentY = targetY = (minY + maxY) / 2;
-      // Apply initial position
-      img.style.transform = `translate(${currentX}px, ${currentY}px)`;
-      console.log('Initialized dimensions:', { imgWidth, imgHeight, containerWidth, containerHeight });
-      console.log('Movement bounds:', { minX, maxX, minY, maxY });
-    }
-
-    // Handle deviceorientation events (update target positions based on tilt)
-function handleOrientation(event) {
-  const { alpha, beta, gamma } = event;
-  console.log('deviceorientation event:', { alpha, beta, gamma });
-  
-  // Existing panning logic:
-  const maxTilt = 45;
-  const tiltX = Math.max(-maxTilt, Math.min(maxTilt, gamma || 0));
-  const tiltY = Math.max(-maxTilt, Math.min(maxTilt, beta || 0));
-  targetX = (minX + maxX) / 2 + (minX - maxX) * (tiltX / (2 * maxTilt));
-  targetY = (minY + maxY) / 2 + (maxY - minY) * (tiltY / (2 * maxTilt));
-  targetX = Math.max(minX, Math.min(maxX, targetX));
-  targetY = Math.max(minY, Math.min(maxY, targetY));
-
-  // New zoom logic: map alpha (0-360) to a scale factor between 1 and 2
-  let rawAlpha = alpha || 0;
-  scaleTarget = 1 + (rawAlpha / 360);
-}
-
-
-    // Animation loop: smoothly move the image toward target position
-function updatePosition() {
-  // Smoothly interpolate the position
-  currentX += (targetX - currentX) * 0.1;
-  currentY += (targetY - currentY) * 0.1;
-  // Smoothly interpolate the scale for zoom
-  currentScale += (scaleTarget - currentScale) * 0.1;
-  
-  // Combine translation and scale in the transform
-  img.style.transform = `translate(${currentX}px, ${currentY}px) scale(${currentScale})`;
-  
-  requestAnimationFrame(updatePosition);
-}
-
-
-function startOrientationTracking() {
-  initDimensions();  // set up sizes and bounds
-  // If iOS 13+ device, request permission first
-  if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
-    DeviceOrientationEvent.requestPermission().then(response => {
-      if (response === 'granted') {
-        console.log('Motion permission granted');
-        window.addEventListener('deviceorientation', handleOrientation);
-        // Start the animation loop
-        requestAnimationFrame(updatePosition);
-      } else {
-        console.warn('Motion permission denied by user');
-      }
-    }).catch(err => {
-      console.error('Error requesting deviceorientation permission:', err);
-    });
-  } else {
-    // Other platforms (Android, etc.) – permission not required
-    window.addEventListener('deviceorientation', handleOrientation);
-    // Start the animation loop
-    requestAnimationFrame(updatePosition);
-  }
-}
-
-
-    // Set up event to initiate tracking depending on platform
-    if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
-      // On iOS: show the start button and wait for user tap to request permission
-      startBtn.style.display = 'block';
-      startBtn.addEventListener('click', () => {
-        startBtn.style.display = 'none';
-        // Ensure image is loaded before starting
-        if (!img.complete) {
-          img.onload = startOrientationTracking;
-        } else {
-          startOrientationTracking();
+      // Initialize dimensions and boundaries after image is loaded/displayed
+      function initDimensions() {
+        containerWidth = container.clientWidth;
+        containerHeight = container.clientHeight;
+        imgWidth = img.clientWidth;
+        imgHeight = img.clientHeight;
+        if (imgWidth === 0 || imgHeight === 0) {
+          // Fallback: use intrinsic size if not rendered yet
+          imgWidth = img.naturalWidth;
+          imgHeight = img.naturalHeight;
         }
-      });
-    } else {
-      // On Android and other devices: start tracking once the page (image) is fully loaded
-      window.addEventListener('load', startOrientationTracking);
-    }
+        // Calculate boundaries for movement (allowing full panning range)
+        minX = Math.min(0, containerWidth - imgWidth);
+        maxX = Math.max(0, containerWidth - imgWidth);
+        minY = Math.min(0, containerHeight - imgHeight);
+        maxY = Math.max(0, containerHeight - imgHeight);
+        // Optionally center the image initially
+        currentX = targetX = (minX + maxX) / 2;
+        currentY = targetY = (minY + maxY) / 2;
+        img.style.transform = `translate(${currentX}px, ${currentY}px) scale(${currentScale})`;
+        console.log('Initialized dimensions:', { imgWidth, imgHeight, containerWidth, containerHeight });
+        console.log('Movement bounds:', { minX, maxX, minY, maxY });
+      }
 
-    // Recalculate dimensions if the viewport size changes (e.g. device rotation)
-    window.addEventListener('resize', initDimensions);
-  })();
+      // Handle deviceorientation events (update target positions for panning)
+      function handleOrientation(event) {
+        const { beta, gamma } = event;
+        console.log('deviceorientation event:', { beta, gamma });
+        const maxTilt = 45; // degrees for panning sensitivity
+        const tiltX = Math.max(-maxTilt, Math.min(maxTilt, gamma || 0));
+        const tiltY = Math.max(-maxTilt, Math.min(maxTilt, beta || 0));
+        targetX = (minX + maxX) / 2 + (minX - maxX) * (tiltX / (2 * maxTilt));
+        targetY = (minY + maxY) / 2 + (maxY - minY) * (tiltY / (2 * maxTilt));
+        targetX = Math.max(minX, Math.min(maxX, targetX));
+        targetY = Math.max(minY, Math.min(maxY, targetY));
+      }
+
+      // Handle devicemotion events to update zoom
+      function handleMotion(event) {
+        // Use the acceleration including gravity along the z-axis
+        // Note: Depending on your device, the sign of z might be reversed.
+        const zAcc = event.accelerationIncludingGravity.z || 0;
+        // Update the zoomFactor based on z-axis movement.
+        // If moving the phone forward (toward your face), zAcc might be negative, increasing zoom.
+        // If moving it away, zAcc might be positive, decreasing zoom.
+        zoomFactor -= zAcc * zoomSensitivity;
+        // Clamp zoomFactor to a desired range (e.g., between 0.5 and 2)
+        zoomFactor = Math.max(0.5, Math.min(2, zoomFactor));
+        // Set scaleTarget to the new zoomFactor
+        scaleTarget = zoomFactor;
+      }
+
+      // Animation loop: smoothly update image position and scale
+      function updatePosition() {
+        // Smoothly interpolate position
+        currentX += (targetX - currentX) * 0.1;
+        currentY += (targetY - currentY) * 0.1;
+        // Smoothly interpolate scale for zoom
+        currentScale += (scaleTarget - currentScale) * 0.1;
+        img.style.transform = `translate(${currentX}px, ${currentY}px) scale(${currentScale})`;
+        requestAnimationFrame(updatePosition);
+      }
+
+      // Start orientation tracking (with permission handling for iOS)
+      function startOrientationTracking() {
+        initDimensions();
+        // Request permission if needed (iOS 13+)
+        if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+          DeviceOrientationEvent.requestPermission().then(response => {
+            if (response === 'granted') {
+              console.log('Motion permission granted');
+              window.addEventListener('deviceorientation', handleOrientation);
+              window.addEventListener('devicemotion', handleMotion);
+              requestAnimationFrame(updatePosition);
+            } else {
+              console.warn('Motion permission denied by user');
+            }
+          }).catch(err => {
+            console.error('Error requesting deviceorientation permission:', err);
+          });
+        } else {
+          window.addEventListener('deviceorientation', handleOrientation);
+          window.addEventListener('devicemotion', handleMotion);
+          requestAnimationFrame(updatePosition);
+        }
+      }
+
+      // Set up event to initiate tracking depending on platform
+      if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+        startBtn.style.display = 'block';
+        startBtn.addEventListener('click', () => {
+          startBtn.style.display = 'none';
+          if (!img.complete) {
+            img.onload = startOrientationTracking;
+          } else {
+            startOrientationTracking();
+          }
+        });
+      } else {
+        window.addEventListener('load', startOrientationTracking);
+      }
+
+      // Recalculate dimensions on viewport resize
+      window.addEventListener('resize', initDimensions);
+    })();
   </script>
 </body>
 </html>
