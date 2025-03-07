@@ -231,26 +231,30 @@ function updatePosition() {
 }
 
 
-    // Start orientation tracking (with permission handling for iOS)
-    function startOrientationTracking() {
-      initDimensions();  // set up sizes and bounds
-      // If iOS 13+ device, request permission first
-      if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
-        DeviceOrientationEvent.requestPermission().then(response => {
-          if (response === 'granted') {
-            console.log('Motion permission granted');
-            window.addEventListener('deviceorientation', handleOrientation);
-          } else {
-            console.warn('Motion permission denied by user');
-          }
-        }).catch(err => {
-          console.error('Error requesting deviceorientation permission:', err);
-        });
-      } else {
-        // Other platforms (Android, etc.) – permission not required
+function startOrientationTracking() {
+  initDimensions();  // set up sizes and bounds
+  // If iOS 13+ device, request permission first
+  if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+    DeviceOrientationEvent.requestPermission().then(response => {
+      if (response === 'granted') {
+        console.log('Motion permission granted');
         window.addEventListener('deviceorientation', handleOrientation);
+        // Start the animation loop
+        requestAnimationFrame(updatePosition);
+      } else {
+        console.warn('Motion permission denied by user');
       }
-    }
+    }).catch(err => {
+      console.error('Error requesting deviceorientation permission:', err);
+    });
+  } else {
+    // Other platforms (Android, etc.) – permission not required
+    window.addEventListener('deviceorientation', handleOrientation);
+    // Start the animation loop
+    requestAnimationFrame(updatePosition);
+  }
+}
+
 
     // Set up event to initiate tracking depending on platform
     if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
