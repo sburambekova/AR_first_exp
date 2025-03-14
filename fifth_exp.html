@@ -421,9 +421,9 @@
           imgHeight = img.naturalHeight;
         }
         // Calculate boundaries for movement
-        minX = Math.min(0, containerWidth - imgWidth);
-        maxX = Math.max(0, containerWidth - imgWidth);
-        minY = Math.min(0, containerHeight - imgHeight-500);
+        minX = Math.min(0, containerWidth - imgWidth-50);
+        maxX = Math.max(0, containerWidth - imgWidth+50);
+        minY = Math.min(0, containerHeight - imgHeight-300);
         maxY = Math.max(0, containerHeight - imgHeight+300);
         // Optionally, start with image centered within the bounds
         currentX = targetX = (minX + maxX) / 2;
