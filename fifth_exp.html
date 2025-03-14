@@ -452,6 +452,8 @@
         
         targetX = Math.max(minX, Math.min(maxX, targetX));
         targetY = Math.max(minY, Math.min(maxY, targetY));
+        let rawAlpha = alpha || 0;
+        scaleTarget = 1 + (rawAlpha / 360);
       }
 
         // Optional: you could also map alpha to zoom here if desired
