@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Device Tilt & Experiment</title>
   <style>
-    /* Container and image styling */
+    
     #container {
       position: relative;
       overflow: hidden;
@@ -15,7 +15,7 @@
     }
     #tiltImage {
       position: absolute;
-      /* Movement will be controlled by CSS transforms */
+  
     }
     #startButton {
       position: absolute;
@@ -24,9 +24,9 @@
       transform: translate(-50%, -50%);
       padding: 1em 2em;
       font-size: 1.2em;
-      display: none; /* only show on iOS when permission is needed */
+      display: none; 
     }
-    /* Experiment controls styling */
+
     #experimentControls {
       padding: 20px;
       background: #eee;
@@ -39,13 +39,13 @@
   </style>
 </head>
 <body>
-  <!-- You can generate a QR code that points to this page URL so that scanning it opens this page directly -->
+ 
   <div id="container">
     <img id="tiltImage" src="https://sburambekova.github.io/AR_first_exp/assets/datasheet.png" alt="Document Image" />
   </div>
   <button id="startButton">Enable Motion</button>
 
-  <!-- Experiment Controls -->
+
   <div id="experimentControls">
     <h2>Experiment: Gamma Dead Zone</h2>
     <label for="gammaOptions">Select Gamma Dead Zone:</label>
@@ -96,12 +96,12 @@
 
   <script>
     (() => {
-      // Elements
+
       const img = document.getElementById('tiltImage');
       const container = document.getElementById('container');
       const startBtn = document.getElementById('startButton');
       
-      // Experiment controls elements
+
       const gammaOptions = document.getElementById('gammaOptions');
       const betaOptions = document.getElementById('betaOptions');
       const sensitivityOptions = document.getElementById('sensitivityOptions');
@@ -114,35 +114,35 @@
       const resultsDiv = document.getElementById('results');
       const velocityDisplay = document.getElementById('velocityDisplay');
       
-      // Storage for experiment results
+
       const experimentResults = {
         gamma: [],
         beta: [],
         sensitivity: []
       };
       
-      // Variables for dimensions and movement bounds
+
       let imgWidth, imgHeight, containerWidth, containerHeight;
       let minX, maxX, minY, maxY;
       
-      // Position and scale values
+  
       let currentX = 0, currentY = 0;
       let targetX = 0, targetY = 0;
       let scaleTarget = 1;
       let currentScale = 1;
       
-      // Experiment parameters (defaults from the controls)
+
       let gammaDeadZone = parseInt(gammaOptions.value);
       let betaDeadZone = parseInt(betaOptions.value);
       let sensitivity = parseInt(sensitivityOptions.value);
       
-      // For computing velocity
+
       let lastTimestamp = performance.now();
       
-      // Flag for animation loop
+
       let orientationActive = false;
       
-      // Initialize dimensions and movement bounds
+
       function initDimensions() {
         containerWidth = container.clientWidth;
         containerHeight = container.clientHeight;
@@ -152,52 +152,50 @@
           imgWidth = img.naturalWidth;
           imgHeight = img.naturalHeight;
         }
-        // Adjust the bounds (you can tweak these values)
+
         minX = Math.min(0, containerWidth - imgWidth - 200);
         maxX = Math.max(0, containerWidth - imgWidth + 200);
         minY = Math.min(0, containerHeight - imgHeight - 400);
         maxY = Math.max(0, containerHeight - imgHeight + 400);
         
-        // Center the image
+
         currentX = targetX = (minX + maxX) / 2;
         currentY = targetY = (minY + maxY) / 2;
         img.style.transform = `translate(${currentX}px, ${currentY}px) scale(${currentScale})`;
         console.log('Initialized dimensions:', { imgWidth, imgHeight, containerWidth, containerHeight });
         console.log('Movement bounds:', { minX, maxX, minY, maxY });
       }
-      
-      // Handle device orientation events
+
       function handleOrientation(event) {
         const { alpha, beta, gamma } = event;
         console.log('deviceorientation event:', { alpha, beta, gamma });
         
-        // Apply dead zones: ignore small tilts
+
         let effectiveGamma = (Math.abs(gamma) > gammaDeadZone ? gamma : 0);
         let effectiveBeta  = (Math.abs(beta)  > betaDeadZone  ? beta  : 0);
         
-        const maxTilt = 45; // maximum tilt to map
+        const maxTilt = 45; 
         const tiltX = Math.max(-maxTilt, Math.min(maxTilt, effectiveGamma));
         const tiltY = Math.max(-maxTilt, Math.min(maxTilt, effectiveBeta));
         
-        // Calculate target positions from tilt values
+  
         targetX = (minX + maxX) / 2 + (minX - maxX) * (tiltX / (2 * maxTilt));
         targetY = (minY + maxY) / 2 + (maxY - minY) * (tiltY / (2 * maxTilt));
         targetX = Math.max(minX, Math.min(maxX, targetX));
         targetY = Math.max(minY, Math.min(maxY, targetY));
       }
       
-      // Animation loop: update position and compute velocity
+
       function updatePosition() {
         let now = performance.now();
-        let dt = now - lastTimestamp;
+        let dt = now - lastTimestamp; //time delta
         lastTimestamp = now;
         
-        // Compute an approximate velocity (in pixels per second)
-        // Here we assume that the "sensitivity" value scales the movement.
+
         let velocity = (sensitivity / dt) * 1000; // px/s
         velocityDisplay.textContent = `Velocity: ${velocity.toFixed(2)} px/s`;
         
-        // Interpolation factor adjusted by sensitivity (default sensitivity 7 gives factor 0.1)
+       
         let interpFactor = 0.1 * (sensitivity / 7);
         currentX += (targetX - currentX) * interpFactor;
         currentY += (targetY - currentY) * interpFactor;
@@ -207,7 +205,7 @@
         requestAnimationFrame(updatePosition);
       }
       
-      // Start motion tracking
+
       function startOrientationTracking() {
         initDimensions();
         if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
@@ -254,7 +252,7 @@
         resultsDiv.textContent = JSON.stringify(experimentResults, null, 2);
       }
       
-      // Initialize motion tracking.
+
       if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
         startBtn.style.display = 'block';
         startBtn.addEventListener('click', () => {
@@ -269,7 +267,7 @@
         window.addEventListener('load', startOrientationTracking);
       }
       
-      // Recalculate dimensions on resize.
+ 
       window.addEventListener('resize', initDimensions);
     })();
   </script>
