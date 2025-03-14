@@ -285,17 +285,17 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Device Tilt Image Movement Experiment</title>
   <style>
-    /* Container and image styling */
+
     #container {
       position: relative;
       overflow: hidden;
       width: 100%;
-      height: 100vh; /* full viewport height container */
+      height: 100vh; 
       background: #f0f0f0;
     }
     #tiltImage {
       position: absolute;
-      /* The image will be positioned via script using transforms */
+    
     }
     #startButton {
       position: absolute;
@@ -303,9 +303,9 @@
       transform: translate(-50%, -50%);
       padding: 1em 2em;
       font-size: 1.2em;
-      display: none; /* shown only if needed (iOS) */
+      display: none; 
     }
-    /* Experiment controls styling */
+
     #experimentControls {
       padding: 20px;
       background: #eee;
@@ -320,7 +320,7 @@
   </div>
   <button id="startButton">Enable Motion</button>
 
-  <!-- Experiment Controls -->
+
   <div id="experimentControls">
     <h2>Experiment: Gamma Dead Zone</h2>
     <label for="gammaOptions">Select Gamma Dead Zone:</label>
@@ -372,7 +372,6 @@
       const container = document.getElementById('container');
       const startBtn = document.getElementById('startButton');
 
-      // Experiment controls elements
       const gammaOptions = document.getElementById('gammaOptions');
       const betaOptions = document.getElementById('betaOptions');
       const sensitivityOptions = document.getElementById('sensitivityOptions');
@@ -384,66 +383,60 @@
       const submitSensitivityBtn = document.getElementById('submitSensitivity');
       const resultsDiv = document.getElementById('results');
 
-      // Experiment results storage
       const experimentResults = {
         gamma: [],
         beta: [],
         sensitivity: []
       };
 
-      // Variables for dimensions
       let imgWidth, imgHeight, containerWidth, containerHeight;
-      // Movement boundaries
       let minX, maxX, minY, maxY;
-      // Image position (current and target)
+ 
       let currentX = 0, currentY = 0;
       let targetX = 0, targetY = 0;
-      // Scale (zoom) values (if needed)
+
       let scaleTarget = 1;
       let currentScale = 1;
-      // Experiment parameters (with defaults)
-      let gammaDeadZone = parseInt(gammaOptions.value);     // e.g., 10
-      let betaDeadZone = parseInt(betaOptions.value);       // e.g., 10
-      let sensitivity = parseInt(sensitivityOptions.value); // e.g., 7
+  
+      let gammaDeadZone = parseInt(gammaOptions.value);     
+      let betaDeadZone = parseInt(betaOptions.value);     
+      let sensitivity = parseInt(sensitivityOptions.value); 
 
-      // Flag to track if the animation loop is running
       let orientationActive = false;
 
-      // Initialize dimensions and boundaries after image is loaded/displayed
       function initDimensions() {
         containerWidth = container.clientWidth;
         containerHeight = container.clientHeight;
         imgWidth = img.clientWidth;
         imgHeight = img.clientHeight;
         if (imgWidth === 0 || imgHeight === 0) {
-          // Fallback: use intrinsic size if not rendered yet
+
           imgWidth = img.naturalWidth;
           imgHeight = img.naturalHeight;
         }
-        // Calculate boundaries for movement
+
         minX = Math.min(0, containerWidth - imgWidth-50);
         maxX = Math.max(0, containerWidth - imgWidth+50);
         minY = Math.min(0, containerHeight - imgHeight-300);
         maxY = Math.max(0, containerHeight - imgHeight+300);
-        // Optionally, start with image centered within the bounds
+
         currentX = targetX = (minX + maxX) / 2;
         currentY = targetY = (minY + maxY) / 2;
-        // Apply initial position using a template literal
+
         img.style.transform = `translate(${currentX}px, ${currentY}px) scale(${currentScale})`;
         console.log('Initialized dimensions:', { imgWidth, imgHeight, containerWidth, containerHeight });
         console.log('Movement bounds:', { minX, maxX, minY, maxY });
       }
 
-      // Handle deviceorientation events (update target positions based on tilt)
       function handleOrientation(event) {
         const { alpha, beta, gamma } = event;
         console.log('deviceorientation event:', { alpha, beta, gamma });
         
-        // Apply dead zones: if tilt is less than the dead zone, treat it as 0.
+
         let effectiveGamma = (Math.abs(gamma) > gammaDeadZone ? gamma : 0);
         let effectiveBeta = (Math.abs(beta) > betaDeadZone ? beta : 0);
         
-        const maxTilt = 45; // degrees for mapping sensitivity
+        const maxTilt = 45;
         const tiltX = Math.max(-maxTilt, Math.min(maxTilt, effectiveGamma));
         const tiltY = Math.max(-maxTilt, Math.min(maxTilt, effectiveBeta));
         
@@ -452,33 +445,27 @@
         
         targetX = Math.max(minX, Math.min(maxX, targetX));
         targetY = Math.max(minY, Math.min(maxY, targetY));
-        let rawAlpha = alpha || 0;
-        scaleTarget = 1 + (rawAlpha / 360);
-      }
-
-        // Optional: you could also map alpha to zoom here if desired
         // let rawAlpha = alpha || 0;
         // scaleTarget = 1 + (rawAlpha / 360);
+      }
+
       
 
-      // Animation loop: smoothly update image position and scale
+
       function updatePosition() {
-        // Adjust interpolation factor based on sensitivity (default sensitivity = 7 corresponds to factor 0.1)
         let interpFactor = 0.1 * (sensitivity / 7);
         currentX += (targetX - currentX) * interpFactor;
         currentY += (targetY - currentY) * interpFactor;
-        // Smoothly interpolate scale (if zoom is used)
         currentScale += (scaleTarget - currentScale) * 0.1;
         
-        // Combine translation and scale in the transform
         img.style.transform = `translate(${currentX}px, ${currentY}px) scale(${currentScale})`;
         
         requestAnimationFrame(updatePosition);
       }
 
       function startOrientationTracking() {
-        initDimensions();  // set up sizes and bounds
-        // Request permission if needed (iOS 13+)
+        initDimensions();  
+
         if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
           DeviceOrientationEvent.requestPermission().then(response => {
             if (response === 'granted') {
@@ -492,13 +479,13 @@
             console.error('Error requesting deviceorientation permission:', err);
           });
         } else {
-          // On Android and other devices (no permission required)
+   
           window.addEventListener('deviceorientation', handleOrientation);
           requestAnimationFrame(updatePosition);
         }
       }
 
-      // Experiment control event listeners
+
       submitGammaBtn.addEventListener('click', () => {
         gammaDeadZone = parseInt(gammaOptions.value);
         const gammaScore = parseInt(gammaRatingInput.value);
@@ -524,9 +511,9 @@
         resultsDiv.textContent = JSON.stringify(experimentResults, null, 2);
       }
 
-      // Set up event to initiate motion tracking depending on platform
+      
       if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
-        // On iOS: show the start button to request permission
+       
         startBtn.style.display = 'block';
         startBtn.addEventListener('click', () => {
           startBtn.style.display = 'none';
@@ -537,11 +524,11 @@
           }
         });
       } else {
-        // On Android and others: start tracking once the page is fully loaded
+
         window.addEventListener('load', startOrientationTracking);
       }
 
-      // Recalculate dimensions if the viewport size changes (e.g., on device rotation)
+     
       window.addEventListener('resize', initDimensions);
     })();
   </script>
