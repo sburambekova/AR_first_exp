@@ -423,7 +423,7 @@
         // Calculate boundaries for movement
         minX = Math.min(0, containerWidth - imgWidth);
         maxX = Math.max(0, containerWidth - imgWidth);
-        minY = Math.min(0, containerHeight - imgHeight);
+        minY = Math.min(0, containerHeight - imgHeight-100);
         maxY = Math.max(0, containerHeight - imgHeight);
         // Optionally, start with image centered within the bounds
         currentX = targetX = (minX + maxX) / 2;
@@ -436,30 +436,23 @@
 
       // Handle deviceorientation events (update target positions based on tilt)
       function handleOrientation(event) {
-        const { beta, gamma } = event;
-        console.log('deviceorientation event:', { beta, gamma });
+        const { alpha, beta, gamma } = event;
+        console.log('deviceorientation event:', { alpha, beta, gamma });
         
-        // Apply dead zones (if any)
-        let effectiveBeta = (Math.abs(beta) > betaDeadZone ? beta : 0);
+        // Apply dead zones: if tilt is less than the dead zone, treat it as 0.
         let effectiveGamma = (Math.abs(gamma) > gammaDeadZone ? gamma : 0);
+        let effectiveBeta = (Math.abs(beta) > betaDeadZone ? beta : 0);
         
         const maxTilt = 45; // degrees for mapping sensitivity
-        
-        // Calculate tilt values within a capped range
         const tiltX = Math.max(-maxTilt, Math.min(maxTilt, effectiveGamma));
         const tiltY = Math.max(-maxTilt, Math.min(maxTilt, effectiveBeta));
         
         targetX = (minX + maxX) / 2 + (minX - maxX) * (tiltX / (2 * maxTilt));
+        targetY = (minY + maxY) / 2 + (maxY - minY) * (tiltY / (2 * maxTilt));
         
-        // Increase vertical movement with a multiplier
-        const yMultiplier = 5;  // adjust this factor as needed
-        targetY = (minY + maxY) / 2 + (maxY - minY) * (tiltY / (2 * maxTilt)) * yMultiplier;
-        
-        // Clamp the target positions within boundaries
         targetX = Math.max(minX, Math.min(maxX, targetX));
         targetY = Math.max(minY, Math.min(maxY, targetY));
-}
-
+      }
 
         // Optional: you could also map alpha to zoom here if desired
         // let rawAlpha = alpha || 0;
