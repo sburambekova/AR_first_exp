@@ -428,30 +428,31 @@
         console.log('Movement bounds:', { minX, maxX, minY, maxY });
       }
 
-      function handleOrientation(event) {
+function handleOrientation(event) {
   const { beta, gamma } = event;
-  // Apply dead zones: if within dead zone, consider the tilt as 0.
+  console.log('deviceorientation event:', { beta, gamma });
+  
+  // Apply dead zones for each axis
   let effectiveGamma = (Math.abs(gamma) > gammaDeadZone ? gamma : 0);
   let effectiveBeta  = (Math.abs(beta)  > betaDeadZone  ? beta  : 0);
-
-  // If both effective values are zero, the phone is nearly straight.
-  // Freeze the image by keeping the current position.
-  if (effectiveGamma === 0 && effectiveBeta === 0) {
-    targetX = currentX;
-    targetY = currentY;
-    return;
-  }
   
-  // Otherwise, update target positions normally.
-  const maxTilt = 45; // Maximum tilt to map
+  const maxTilt = 45; // Maximum tilt for mapping
   const tiltX = Math.max(-maxTilt, Math.min(maxTilt, effectiveGamma));
   const tiltY = Math.max(-maxTilt, Math.min(maxTilt, effectiveBeta));
   
+  // Update horizontal position (targetX) normally
   targetX = (minX + maxX) / 2 + (minX - maxX) * (tiltX / (2 * maxTilt));
-  targetY = (minY + maxY) / 2 + (maxY - minY) * (tiltY / (2 * maxTilt));
-  
   targetX = Math.max(minX, Math.min(maxX, targetX));
-  targetY = Math.max(minY, Math.min(maxY, targetY));
+  
+  // For vertical movement: freeze if the beta value is within the dead zone
+  if (effectiveBeta === 0) {
+    // The phone is held vertically straight (within dead zone)
+    targetY = currentY; // Freeze vertical movement
+  } else {
+    // Otherwise, update vertical position normally
+    targetY = (minY + maxY) / 2 + (maxY - minY) * (tiltY / (2 * maxTilt));
+    targetY = Math.max(minY, Math.min(maxY, targetY));
+  }
 }
 
       
